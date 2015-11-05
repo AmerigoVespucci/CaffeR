@@ -1,7 +1,7 @@
 # CaffeR
-A snapshot of Jeff Donahue's version of Caffe for playing around with some new ideas
+A snapshot of Jeff Donahue's version of Caffe for playing around with some new ideas.
 
-The snapshot was taken a while ago and I hve been adding some experiments to my local directory. I created this repo from by directory.
+The snapshot was taken a while ago and I have been adding some experiments to my local directory. I created this repo from my directory.
 
 If anybody does come across this repo and feels that the ethical, conventional or legally correct path is to fork the original and then recreate my additions, please let me know.
 
