@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <boost/random.hpp>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
@@ -10,8 +11,6 @@
 #include "caffe/util/upgrade_proto.hpp"
 
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <iosfwd>
 #include <memory>
 #include <string>
@@ -47,8 +46,22 @@ public:
 		trained_file_ = trained_file;
 		input_layer_name_ = input_layer_name;
 		output_layer_name_ = output_layer_name;
+		b_self_launched = true;
 	}
 	
+	NGNet(	shared_ptr<NGNet> launcher,
+			int mod_param_layer_idx,
+			int mod_layer_idx) {
+		model_file_ = launcher->model_file_;
+		input_layer_name_ = launcher->input_layer_name_;
+		output_layer_name_ = launcher->output_layer_name_;
+		b_self_launched = false;
+		mod_param_layer_idx_ = mod_param_layer_idx;
+		mod_layer_idx_ = mod_layer_idx;
+		launcher_ = launcher;
+	}
+
+	void Launch();
 	void Init();
 	Blob<float>* GetVec(bool b_top, int layer_idx, int branch_idx);
 	Blob<float>* GetInputVec() {
@@ -63,12 +76,15 @@ public:
 	float ComputeOutput() {
 		return net_->ForwardFromTo(input_layer_idx_+1, output_layer_idx_);
 	}
+	float ComputeRemainingLayers() {
+		return net_->ForwardFromTo(output_layer_idx_+1, net_->layers().size() - 1);
+	}
 	int input_layer_dim() { return input_layer_dim_; }
 	int input_layer_idx() { return input_layer_idx_; }
 	
 private:
 	shared_ptr<Net<float> > net_;
-	shared_ptr<Net<float> > new_net_;
+	//shared_ptr<Net<float> > new_net_;
 	int input_layer_idx_;
 	int input_layer_top_idx_; // currently the index of the array of top_vectors for this net
 	int output_layer_idx_;
@@ -78,6 +94,10 @@ private:
 	string input_layer_name_ ;
 	string output_layer_name_;
 	int input_layer_dim_;
+	bool b_self_launched;
+	shared_ptr<NGNet> launcher_; // dangerous pointer. For now, promise to use only in Init and never again
+	int mod_param_layer_idx_;
+	int mod_layer_idx_;
 };
 
 class NetGen {
@@ -85,7 +105,7 @@ public:
 	NetGen() {bInit_ = false; }
 
 	void PreInit();
-	void Init(	vector<NGNet>& nets,
+	void Init(	vector<shared_ptr<NGNet> >& nets,
 				const string& word_file_name,
 				const string& word_vector_file_name);
 
@@ -101,7 +121,7 @@ private:
 
 private:
 	bool bInit_;
-	vector<NGNet>* p_nets_;
+	vector<shared_ptr<NGNet> > nets_;
 	vector<vector<float> > data_recs_;
 	vector<float> label_recs_;
 	vector<string> words_;
@@ -115,32 +135,85 @@ private:
 
 };
 
+// returns a rnd num from -0.5f to 0.5f uniform dist, don't know (care) about endpoints
+float rn(void)
+{
+  boost::mt19937 rng(43);
+  static boost::uniform_01<boost::mt19937> zeroone(rng);
+  return ((float)zeroone() - 0.5f);
+}
+
+void NGNet::Launch()
+{
+	if (b_self_launched) {
+		net_.reset(new Net<float>(model_file_, TEST));
+		net_->CopyTrainedLayersFrom(trained_file_);	
+	}
+	else {
+		NetParameter param;
+		CHECK(ReadProtoFromTextFile(model_file_, &param))
+			<< "Failed to parse NetParameter file: " << model_file_;
+		LayerParameter* layer_param = param.mutable_layer(mod_param_layer_idx_);
+		if (layer_param->has_inner_product_param()) {
+			InnerProductParameter* inner_product_param = layer_param->mutable_inner_product_param();
+			int num_output = inner_product_param->num_output();
+			if (num_output > 0) {
+				inner_product_param->set_num_output(num_output * 2); 
+			}
+		}
+		param.mutable_state()->set_phase(TEST);
+		net_.reset(new Net<float>(param));
+
+		for (int il = 0; il < launcher_->net_->layers().size(); il++) {
+			Layer<float>* layer = launcher_->net_->layers()[il].get();
+			for (int ib=0; ib < layer->blobs().size(); ib++) {
+				Blob<float>* weights = layer->blobs()[ib].get() ;
+				Blob<float>* new_weights = net_->layers()[il]->blobs()[ib].get() ;
+				if (weights->count() == 0) {
+					continue;
+				}
+				if (weights->count() == new_weights->count()) {
+					const float * pw = weights->cpu_data();
+					float * pnw = new_weights->mutable_cpu_data();
+					for (int iw = 0; iw < weights->count(); iw++) {
+						pnw[iw] = pw[iw];
+					}
+				}
+				else if (new_weights->count() == (weights->count() * 2)) {
+					float min_val = FLT_MAX;
+					float max_val = -FLT_MAX;
+					const float * pw = weights->cpu_data();
+					float * pnw = new_weights->mutable_cpu_data();
+					for (int iw = 0; iw < weights->count(); iw++) {
+						float v = pw[iw];
+						if (v > max_val) max_val = v;
+						if (v < min_val) min_val = v;
+					}
+					float cFrac = 0.01f;
+					float rmod = (max_val - min_val) * cFrac;
+					float rtwice = 1.0f;
+					if (il == mod_layer_idx_) {
+						rtwice = 0.5f;
+					}
+					for (int iw = 0; iw < weights->count(); iw++) {
+						float adj = rn() * rmod;
+						pnw[iw * 2] = (pw[iw] * rtwice) + adj;
+						pnw[(iw * 2)+1] = (pw[iw] * rtwice) - adj;
+					}
+				}
+
+			}
+		}
+	}
+}
+
 void NGNet::Init(	) {
 
+	Launch();
 	input_layer_top_idx_ = 0;
 	output_layer_top_idx_ = 0;
 	
 	/* Load the network. */
-	net_.reset(new Net<float>(model_file_, TEST));
-	NetParameter param;
-	CHECK(ReadProtoFromTextFile(model_file_, &param))
-		<< "Failed to parse NetParameter file: " << model_file_;
-	const int mod_layer_idx = 2;
-	LayerParameter* layer_param = param.mutable_layer(mod_layer_idx);
-	if (layer_param->has_inner_product_param()) {
-		InnerProductParameter* inner_product_param = layer_param->mutable_inner_product_param();
-		int num_output = inner_product_param->num_output();
-		if (num_output > 0) {
-			inner_product_param->set_num_output(num_output * 2); 
-		}
-	}
-	param.mutable_state()->set_phase(TEST);
-	//Net<float> * new_net = new Net<float>(param);
-	new_net_.reset(new Net<float>(param));
-	shared_ptr<Blob<float> >& Weights = new_net_->layers()[2]->blobs()[0] ;
-	
-	net_->CopyTrainedLayersFrom(trained_file_);
-
 	
 	int input_layer_idx = -1;
 	for (size_t layer_id = 0; layer_id < net_->layer_names().size(); ++layer_id) {
@@ -195,7 +268,7 @@ void NetGen::PreInit()
 #endif
 }
 
-void NetGen::Init(	vector<NGNet>& nets,
+void NetGen::Init(	vector<shared_ptr<NGNet> >& nets,
 						const string& word_file_name,
 						const string& word_vector_file_name) {
 
@@ -205,11 +278,11 @@ void NetGen::Init(	vector<NGNet>& nets,
 	words_per_input_ = 1;
 	words_per_input_ = 4;
 	
-	p_nets_ = &nets;
+	nets_ = nets;
 	
 	for (int in = 0; in < nets.size(); in++) {
-		NGNet& net = nets[in];
-		net.Init();
+		shared_ptr<NGNet> net = nets[in];
+		net->Init();
 	}
 
 	
@@ -229,7 +302,7 @@ void NetGen::Init(	vector<NGNet>& nets,
 			words_.push_back(w);
 			words_vecs_.push_back(vector<float>());
 			vector<float>& curr_vec = words_vecs_.back();
-			int num_input_vals = nets[0].input_layer_dim() / words_per_input_;
+			int num_input_vals = nets[0]->input_layer_dim() / words_per_input_;
 			for (int iwv = 0; iwv < num_input_vals; iwv++) {
 				if (iwv == num_input_vals - 1) {
 					getline(str_words, ln);
@@ -302,135 +375,28 @@ int  NetGen::GetClosestWordIndex(	vector<float>& VecOfWord, int num_input_vals,
 bool NetGen::Classify() {
 	CHECK(bInit_) << "NetGen: Init must be called first\n";
 	
-	vector<pair<string, vector<float> > > VecArr;
-	int num_vals_per_word = (*p_nets_)[0].input_layer_dim() / words_per_input_;
-	Blob<float>* predict_input_layer = (*p_nets_)[0].GetInputVec();
-	Blob<float>* predict_label_layer = (*p_nets_)[0].GetVec(
-		true, (*p_nets_)[0].input_layer_idx(), 1);
-	Blob<float>* valid_input_layer = (*p_nets_)[1].GetInputVec();
-	Blob<float>* predict_output_layer = (*p_nets_)[0].GetOutputVec();
-	Blob<float>* valid_output_layer = (*p_nets_)[1].GetOutputVec();
 	
 	int CountMatch = 0;
 	int NumTestRecs = 5000;
-	for (int ir = 0; ir < NumTestRecs; ir++) {
-		(*p_nets_)[0].PrepForInput();
-		const float* p_in = predict_input_layer->cpu_data();  // ->cpu_data();
-		const float* p_lbl = predict_label_layer->cpu_data();
-		//net_->ForwardFromTo(0, input_layer_idx_);
-
-		//string w = words_[isym];
-		//std::cerr << w << ",";
-		const int cNumInputWords = 4;
-		const int cNumValsPerWord = 100;
-		int iMinDiffLbl;
-		vector<pair<float, int> > SortedBest;
-		vector<pair<float, int> > SortedBestDummy;
-		vector<int> ngram_indices(5, -1);
-		int cNumBestKept = 10;
-		for (int iw = 0; iw < cNumInputWords; iw++) {
-			vector<float> VecOfWord;
-			vector<float> VecOfLabel;
-			for (int iact = 0; iact < cNumValsPerWord; iact++) {
-				//*p_in++ = words_vecs_[isym][iact];
-				VecOfWord.push_back(*p_in++);
-			}
-			if (iw == 1) {				
-				for (int iact = 0; iact < cNumValsPerWord; iact++) {
-					//*p_in++ = words_vecs_[isym][iact];
-					VecOfLabel.push_back(*p_lbl++);
-				}
-				iMinDiffLbl = GetClosestWordIndex(VecOfLabel, num_vals_per_word,
-													SortedBestDummy, 1);
-			}
-			int iMinDiff = GetClosestWordIndex(VecOfWord, num_vals_per_word, SortedBestDummy, 1);
-			if (iMinDiff != -1) {
-				int word_idx = ((iw <= 1) ? iw : iw+1);
-				ngram_indices[word_idx] = iMinDiff;
-				string w = words_[iMinDiff];
-				std::cerr << w << " ";
-				if (iw == 1) {
-					if (iMinDiffLbl == -1) {
-						std::cerr << "XXX ";
-					}
-					else {
-						string l = words_[iMinDiffLbl];
-						std::cerr << "(" << l << ") ";
-					}
-				}
-			}
-		}
-		std::cerr << std::endl;
-
-		float loss = (*p_nets_)[0].ComputeOutput();
-		//float loss = net_->ForwardFromTo(input_layer_idx_+1, output_layer_idx_);
-
-		const float* p_out = predict_output_layer->cpu_data();  
-		vector<float> output;
-		vector<float> VecOfWord;
-		for (int io = 0; io < predict_output_layer->shape(1); io++) {
-			float data = *p_out++;
-			VecOfWord.push_back(data);
-		}
-		int iMinDiff = GetClosestWordIndex(	VecOfWord, num_vals_per_word,
-											SortedBest, cNumBestKept);
-		if (iMinDiff != -1) {
-			std::cerr << "--> ";
-			vector <pair<float, int> > ReOrdered;
-			for (int ib = 0; ib < SortedBest.size(); ib++) {
-				ngram_indices[2] = SortedBest[ib].second;
-				(*p_nets_)[1].PrepForInput();
-				float* p_v_in = valid_input_layer->mutable_cpu_data();  // ->cpu_data();
-				const int cNumValidInputWords = 5;
-				for (int iw = 0; iw < cNumValidInputWords; iw++) {
-					for (int iact = 0; iact < cNumValsPerWord; iact++) {
-						*p_v_in++ = words_vecs_[ngram_indices[iw]][iact];
-					}
-				}
-				float v_loss = (*p_nets_)[1].ComputeOutput();
-				const float* p_v_out = valid_output_layer->cpu_data();  
-				float v_val = p_v_out[1]; // seems p_v_out[0] is 1 - p_v_out[1]
-				
-				string w = words_[SortedBest[ib].second];
-				ReOrdered.push_back(make_pair(SortedBest[ib].first / (v_val * v_val * v_val), SortedBest[ib].second));
-				std::cerr << w << " (" << SortedBest[ib].first << " vs. " << v_val << "), ";
-			}
-			std::cerr << std::endl << "Reordered: ";
-			std::sort(ReOrdered.begin(), ReOrdered.end());
-			for (int iro = 0; iro < ReOrdered.size(); iro++) {
-				std::cerr <<  words_[ReOrdered[iro].second] << " (" << ReOrdered[iro].first << "), ";
-			}
-			
-			if (iMinDiffLbl == ReOrdered.front().second) {
-				CountMatch++;
-			}
-		}
-		std::cerr << std::endl;
-		//VecArr.push_back(make_pair(w, output));
-	}
 	
-	std::cerr << CountMatch << " records hit exactly out of " << NumTestRecs << "\n";
-	
-	std::ofstream str_vecs(word_vector_file_name_.c_str());
-	if (str_vecs.is_open()) { 
-		//str_vecs << VecArr[0].second.size() << " ";
-		for (int iv = 0; iv < VecArr.size(); iv++) {
-			pair<string, vector<float> >& rec = VecArr[iv];
-			str_vecs << rec.first << " ";
-			vector<float>& vals = rec.second;
-			for (int ir = 0; ir < vals.size(); ir++) {
-				str_vecs << vals[ir];
-				if (ir == vals.size() - 1) {
-					str_vecs << std::endl;
-				}
-				else {
-					str_vecs << " ";
-				}
-			}
+	for (int in = 0; in < 2; in++) {
+		float loss_sum = 0.0f;
+
+		for (int ir = 0; ir < NumTestRecs; ir++) {
+			nets_[in]->PrepForInput();
+
+			float loss = nets_[in]->ComputeOutput();
+			loss = nets_[in]->ComputeRemainingLayers();
+			Blob<float>* LastLayer = nets_[in]->GetVec(true, 10, 0);
+			float acc_loss = *(LastLayer->cpu_data());
+
+			loss_sum += acc_loss;
+			//float loss = net_->ForwardFromTo(input_layer_idx_+1, output_layer_idx_);
+
 		}
+
+		std::cerr << "Avergage loss: " << loss_sum / NumTestRecs << std::endl;
 	}
-
-
 
 	return true;
 }
@@ -466,13 +432,18 @@ int main(int argc, char** argv) {
 	int input_data_idx = 0;
 	int input_label_idx = 1;
 
+	const int mod_param_layer_idx = 2;
+	const int mod_layer_idx = 2;
+
 	NetGen classifier;
 	classifier.PreInit();
-	vector<NGNet> nets;
-	nets.push_back(NGNet(
+	vector<shared_ptr<NGNet> > nets;
+	nets.push_back(shared_ptr<NGNet>(new NGNet(
 		"/devlink/github/test/toys/NetGen/GramPosValid/train.prototxt",
 		"/devlink/caffe/data/NetGen/GramPosValid/models/g_iter_120921.caffemodel",
-		"data", "SquashOutput"));
+		"data", "SquashOutput")));
+	nets.push_back(shared_ptr<NGNet>(new NGNet(nets[0], mod_param_layer_idx, mod_layer_idx)));
+
 //	nets.push_back(NGNet(
 //		"/home/abba/caffe-recurrent/toys/WordEmbed/GramValid/train.prototxt",
 //		"/devlink/caffe/data/WordEmbed/GramValid/models/g_iter_500000.caffemodel",
