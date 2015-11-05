@@ -68,6 +68,7 @@ public:
 	
 private:
 	shared_ptr<Net<float> > net_;
+	shared_ptr<Net<float> > new_net_;
 	int input_layer_idx_;
 	int input_layer_top_idx_; // currently the index of the array of top_vectors for this net
 	int output_layer_idx_;
@@ -116,7 +117,6 @@ private:
 
 void NGNet::Init(	) {
 
-
 	input_layer_top_idx_ = 0;
 	output_layer_top_idx_ = 0;
 	
@@ -135,7 +135,9 @@ void NGNet::Init(	) {
 		}
 	}
 	param.mutable_state()->set_phase(TEST);
-	Net<float> * new_net = new Net<float>(param);
+	//Net<float> * new_net = new Net<float>(param);
+	new_net_.reset(new Net<float>(param));
+	shared_ptr<Blob<float> >& Weights = new_net_->layers()[2]->blobs()[0] ;
 	
 	net_->CopyTrainedLayersFrom(trained_file_);
 
