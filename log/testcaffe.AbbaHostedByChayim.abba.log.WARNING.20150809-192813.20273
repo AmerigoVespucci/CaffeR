@@ -1,0 +1,4 @@
+Log file created at: 2015/08/09 19:28:13
+Running on machine: AbbaHostedByChayim
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0809 19:28:13.117892 20273 upgrade_proto.cpp:614] Note that future Caffe releases will only support transform_param messages for transformation fields.

@@ -1,0 +1,1600 @@
+Log file created at: 2015/08/12 10:55:20
+Running on machine: AbbaHostedByChayim
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0812 10:55:20.310168 16341 caffe.cpp:117] Use CPU.
+I0812 10:55:20.310508 16341 caffe.cpp:121] Starting Optimization
+I0812 10:55:20.310566 16341 solver.cpp:32] Initializing solver from parameters: 
+train_net: "/home/abba/caffe/examples/simple/train.prototxt"
+test_net: "/home/abba/caffe/examples/simple/train.prototxt"
+test_iter: 100
+test_interval: 1000
+base_lr: 0.001
+display: 500
+max_iter: 100000
+lr_policy: "step"
+gamma: 0.1
+momentum: 0.9
+weight_decay: 0.0005
+stepsize: 50000
+snapshot: 2000
+snapshot_prefix: "/home/abba/caffe/examples/simple/simple"
+solver_mode: CPU
+I0812 10:55:20.310667 16341 solver.cpp:61] Creating training net from train_net file: /home/abba/caffe/examples/simple/train.prototxt
+I0812 10:55:20.310861 16341 net.cpp:287] The NetState phase (0) differed from the phase (1) specified by a rule in layer data
+I0812 10:55:20.310879 16341 net.cpp:287] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0812 10:55:20.310920 16341 net.cpp:42] Initializing net from parameters: 
+name: "LogisticRegressionNet"
+state {
+  phase: TRAIN
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  hdf5_data_param {
+    source: "/home/abba/caffe/examples/simple/train_list.txt"
+    batch_size: 5
+  }
+}
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "fc1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc1"
+  bottom: "label"
+  top: "loss"
+}
+I0812 10:55:20.311076 16341 net.cpp:67] Memory required for data: 0
+I0812 10:55:20.311101 16341 layer_factory.hpp:74] Creating layer data
+I0812 10:55:20.311118 16341 net.cpp:90] Creating Layer data
+I0812 10:55:20.311131 16341 net.cpp:368] data -> data
+I0812 10:55:20.311152 16341 net.cpp:368] data -> label
+I0812 10:55:20.311167 16341 net.cpp:120] Setting up data
+I0812 10:55:20.311177 16341 hdf5_data_layer.cpp:80] Loading list of HDF5 filenames from: /home/abba/caffe/examples/simple/train_list.txt
+I0812 10:55:20.311223 16341 hdf5_data_layer.cpp:94] Number of HDF5 files: 1
+I0812 10:55:20.311234 16341 hdf5_data_layer.cpp:29] Loading HDF5 file: /home/abba/caffe/examples/simple/train.h5
+I0812 10:55:20.312093 16341 hdf5_data_layer.cpp:68] Successully loaded 100 rows
+I0812 10:55:20.312125 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.312137 16341 net.cpp:127] Top shape: 5 1 (5)
+I0812 10:55:20.312145 16341 net.cpp:133] Memory required for data: 60
+I0812 10:55:20.312155 16341 layer_factory.hpp:74] Creating layer fc1
+I0812 10:55:20.312173 16341 net.cpp:90] Creating Layer fc1
+I0812 10:55:20.312182 16341 net.cpp:410] fc1 <- data
+I0812 10:55:20.312201 16341 net.cpp:368] fc1 -> fc1
+I0812 10:55:20.312219 16341 net.cpp:120] Setting up fc1
+I0812 10:55:20.312598 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.312610 16341 net.cpp:133] Memory required for data: 100
+I0812 10:55:20.312628 16341 layer_factory.hpp:74] Creating layer loss
+I0812 10:55:20.312641 16341 net.cpp:90] Creating Layer loss
+I0812 10:55:20.312650 16341 net.cpp:410] loss <- fc1
+I0812 10:55:20.312661 16341 net.cpp:410] loss <- label
+I0812 10:55:20.312674 16341 net.cpp:368] loss -> loss
+I0812 10:55:20.312686 16341 net.cpp:120] Setting up loss
+I0812 10:55:20.312698 16341 layer_factory.hpp:74] Creating layer loss
+I0812 10:55:20.312723 16341 net.cpp:127] Top shape: (1)
+I0812 10:55:20.312732 16341 net.cpp:129]     with loss weight 1
+I0812 10:55:20.312749 16341 net.cpp:133] Memory required for data: 104
+I0812 10:55:20.312758 16341 net.cpp:192] loss needs backward computation.
+I0812 10:55:20.312767 16341 net.cpp:192] fc1 needs backward computation.
+I0812 10:55:20.312777 16341 net.cpp:194] data does not need backward computation.
+I0812 10:55:20.312784 16341 net.cpp:235] This network produces output loss
+I0812 10:55:20.312795 16341 net.cpp:482] Collecting Learning Rate and Weight Decay.
+I0812 10:55:20.312805 16341 net.cpp:247] Network initialization done.
+I0812 10:55:20.312831 16341 net.cpp:248] Memory required for data: 104
+I0812 10:55:20.312963 16341 solver.cpp:154] Creating test net (#0) specified by test_net file: /home/abba/caffe/examples/simple/train.prototxt
+I0812 10:55:20.312988 16341 net.cpp:287] The NetState phase (1) differed from the phase (0) specified by a rule in layer data
+I0812 10:55:20.313040 16341 net.cpp:42] Initializing net from parameters: 
+name: "LogisticRegressionNet"
+state {
+  phase: TEST
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  hdf5_data_param {
+    source: "/home/abba/caffe/examples/simple/test_list.txt"
+    batch_size: 5
+  }
+}
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "fc1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc1"
+  bottom: "label"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc1"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+I0812 10:55:20.313232 16341 net.cpp:67] Memory required for data: 0
+I0812 10:55:20.313254 16341 layer_factory.hpp:74] Creating layer data
+I0812 10:55:20.313268 16341 net.cpp:90] Creating Layer data
+I0812 10:55:20.313279 16341 net.cpp:368] data -> data
+I0812 10:55:20.313295 16341 net.cpp:368] data -> label
+I0812 10:55:20.313309 16341 net.cpp:120] Setting up data
+I0812 10:55:20.313318 16341 hdf5_data_layer.cpp:80] Loading list of HDF5 filenames from: /home/abba/caffe/examples/simple/test_list.txt
+I0812 10:55:20.313341 16341 hdf5_data_layer.cpp:94] Number of HDF5 files: 1
+I0812 10:55:20.313350 16341 hdf5_data_layer.cpp:29] Loading HDF5 file: /home/abba/caffe/examples/simple/test.h5
+I0812 10:55:20.313679 16341 hdf5_data_layer.cpp:68] Successully loaded 30 rows
+I0812 10:55:20.313701 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.313712 16341 net.cpp:127] Top shape: 5 1 (5)
+I0812 10:55:20.313720 16341 net.cpp:133] Memory required for data: 60
+I0812 10:55:20.313730 16341 layer_factory.hpp:74] Creating layer label_data_1_split
+I0812 10:55:20.313743 16341 net.cpp:90] Creating Layer label_data_1_split
+I0812 10:55:20.313753 16341 net.cpp:410] label_data_1_split <- label
+I0812 10:55:20.313766 16341 net.cpp:368] label_data_1_split -> label_data_1_split_0
+I0812 10:55:20.313781 16341 net.cpp:368] label_data_1_split -> label_data_1_split_1
+I0812 10:55:20.313793 16341 net.cpp:120] Setting up label_data_1_split
+I0812 10:55:20.313807 16341 net.cpp:127] Top shape: 5 1 (5)
+I0812 10:55:20.313817 16341 net.cpp:127] Top shape: 5 1 (5)
+I0812 10:55:20.313827 16341 net.cpp:133] Memory required for data: 100
+I0812 10:55:20.313837 16341 layer_factory.hpp:74] Creating layer fc1
+I0812 10:55:20.313851 16341 net.cpp:90] Creating Layer fc1
+I0812 10:55:20.313863 16341 net.cpp:410] fc1 <- data
+I0812 10:55:20.313875 16341 net.cpp:368] fc1 -> fc1
+I0812 10:55:20.313889 16341 net.cpp:120] Setting up fc1
+I0812 10:55:20.313915 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.313923 16341 net.cpp:133] Memory required for data: 140
+I0812 10:55:20.313940 16341 layer_factory.hpp:74] Creating layer fc1_fc1_0_split
+I0812 10:55:20.313951 16341 net.cpp:90] Creating Layer fc1_fc1_0_split
+I0812 10:55:20.313961 16341 net.cpp:410] fc1_fc1_0_split <- fc1
+I0812 10:55:20.313972 16341 net.cpp:368] fc1_fc1_0_split -> fc1_fc1_0_split_0
+I0812 10:55:20.313985 16341 net.cpp:368] fc1_fc1_0_split -> fc1_fc1_0_split_1
+I0812 10:55:20.313997 16341 net.cpp:120] Setting up fc1_fc1_0_split
+I0812 10:55:20.314009 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.314019 16341 net.cpp:127] Top shape: 5 2 (10)
+I0812 10:55:20.314026 16341 net.cpp:133] Memory required for data: 220
+I0812 10:55:20.314034 16341 layer_factory.hpp:74] Creating layer loss
+I0812 10:55:20.314048 16341 net.cpp:90] Creating Layer loss
+I0812 10:55:20.314055 16341 net.cpp:410] loss <- fc1_fc1_0_split_0
+I0812 10:55:20.314087 16341 net.cpp:410] loss <- label_data_1_split_0
+I0812 10:55:20.314100 16341 net.cpp:368] loss -> loss
+I0812 10:55:20.314113 16341 net.cpp:120] Setting up loss
+I0812 10:55:20.314123 16341 layer_factory.hpp:74] Creating layer loss
+I0812 10:55:20.314146 16341 net.cpp:127] Top shape: (1)
+I0812 10:55:20.314155 16341 net.cpp:129]     with loss weight 1
+I0812 10:55:20.314168 16341 net.cpp:133] Memory required for data: 224
+I0812 10:55:20.314178 16341 layer_factory.hpp:74] Creating layer accuracy
+I0812 10:55:20.314190 16341 net.cpp:90] Creating Layer accuracy
+I0812 10:55:20.314200 16341 net.cpp:410] accuracy <- fc1_fc1_0_split_1
+I0812 10:55:20.314213 16341 net.cpp:410] accuracy <- label_data_1_split_1
+I0812 10:55:20.314225 16341 net.cpp:368] accuracy -> accuracy
+I0812 10:55:20.314239 16341 net.cpp:120] Setting up accuracy
+I0812 10:55:20.314254 16341 net.cpp:127] Top shape: (1)
+I0812 10:55:20.314262 16341 net.cpp:133] Memory required for data: 228
+I0812 10:55:20.314271 16341 net.cpp:194] accuracy does not need backward computation.
+I0812 10:55:20.314281 16341 net.cpp:192] loss needs backward computation.
+I0812 10:55:20.314292 16341 net.cpp:192] fc1_fc1_0_split needs backward computation.
+I0812 10:55:20.314301 16341 net.cpp:192] fc1 needs backward computation.
+I0812 10:55:20.314311 16341 net.cpp:194] label_data_1_split does not need backward computation.
+I0812 10:55:20.314322 16341 net.cpp:194] data does not need backward computation.
+I0812 10:55:20.314330 16341 net.cpp:235] This network produces output accuracy
+I0812 10:55:20.314340 16341 net.cpp:235] This network produces output loss
+I0812 10:55:20.314355 16341 net.cpp:482] Collecting Learning Rate and Weight Decay.
+I0812 10:55:20.314366 16341 net.cpp:247] Network initialization done.
+I0812 10:55:20.314375 16341 net.cpp:248] Memory required for data: 228
+I0812 10:55:20.314401 16341 solver.cpp:42] Solver scaffolding done.
+I0812 10:55:20.314419 16341 solver.cpp:250] Solving LogisticRegressionNet
+I0812 10:55:20.314429 16341 solver.cpp:251] Learning Rate Policy: step
+I0812 10:55:20.314437 16341 solver.cpp:294] Iteration 0, Testing net (#0)
+I0812 10:55:20.314450 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.314458 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.314467 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.315793 16341 solver.cpp:343]     Test net output #0: accuracy = 0.234
+I0812 10:55:20.315826 16341 solver.cpp:343]     Test net output #1: loss = 0.747836 (* 1 = 0.747836 loss)
+I0812 10:55:20.315872 16341 solver.cpp:214] Iteration 0, loss = 0.764708
+I0812 10:55:20.315887 16341 solver.cpp:229]     Train net output #0: loss = 0.764708 (* 1 = 0.764708 loss)
+I0812 10:55:20.315901 16341 solver.cpp:486] Iteration 0, lr = 0.001
+I0812 10:55:20.321084 16341 solver.cpp:214] Iteration 500, loss = 0.634566
+I0812 10:55:20.321123 16341 solver.cpp:229]     Train net output #0: loss = 0.634566 (* 1 = 0.634566 loss)
+I0812 10:55:20.321135 16341 solver.cpp:486] Iteration 500, lr = 0.001
+I0812 10:55:20.326678 16341 solver.cpp:294] Iteration 1000, Testing net (#0)
+I0812 10:55:20.326706 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.326715 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.326725 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.327939 16341 solver.cpp:343]     Test net output #0: accuracy = 0.9
+I0812 10:55:20.327967 16341 solver.cpp:343]     Test net output #1: loss = 0.539138 (* 1 = 0.539138 loss)
+I0812 10:55:20.327992 16341 solver.cpp:214] Iteration 1000, loss = 0.561119
+I0812 10:55:20.328007 16341 solver.cpp:229]     Train net output #0: loss = 0.561119 (* 1 = 0.561119 loss)
+I0812 10:55:20.328017 16341 solver.cpp:486] Iteration 1000, lr = 0.001
+I0812 10:55:20.333148 16341 solver.cpp:214] Iteration 1500, loss = 0.506189
+I0812 10:55:20.333174 16341 solver.cpp:229]     Train net output #0: loss = 0.506189 (* 1 = 0.506189 loss)
+I0812 10:55:20.333184 16341 solver.cpp:486] Iteration 1500, lr = 0.001
+I0812 10:55:20.338414 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.338465 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_2000.caffemodel
+I0812 10:55:20.338713 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_2000.solverstate
+I0812 10:55:20.338774 16341 solver.cpp:294] Iteration 2000, Testing net (#0)
+I0812 10:55:20.338788 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.338798 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.338807 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.340114 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.340142 16341 solver.cpp:343]     Test net output #1: loss = 0.435232 (* 1 = 0.435232 loss)
+I0812 10:55:20.340169 16341 solver.cpp:214] Iteration 2000, loss = 0.463766
+I0812 10:55:20.340184 16341 solver.cpp:229]     Train net output #0: loss = 0.463766 (* 1 = 0.463766 loss)
+I0812 10:55:20.340196 16341 solver.cpp:486] Iteration 2000, lr = 0.001
+I0812 10:55:20.345584 16341 solver.cpp:214] Iteration 2500, loss = 0.429993
+I0812 10:55:20.345624 16341 solver.cpp:229]     Train net output #0: loss = 0.429993 (* 1 = 0.429993 loss)
+I0812 10:55:20.345634 16341 solver.cpp:486] Iteration 2500, lr = 0.001
+I0812 10:55:20.350808 16341 solver.cpp:294] Iteration 3000, Testing net (#0)
+I0812 10:55:20.350831 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.350839 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.350848 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.352124 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.352160 16341 solver.cpp:343]     Test net output #1: loss = 0.376528 (* 1 = 0.376528 loss)
+I0812 10:55:20.352190 16341 solver.cpp:214] Iteration 3000, loss = 0.402389
+I0812 10:55:20.352205 16341 solver.cpp:229]     Train net output #0: loss = 0.402389 (* 1 = 0.402389 loss)
+I0812 10:55:20.352217 16341 solver.cpp:486] Iteration 3000, lr = 0.001
+I0812 10:55:20.357450 16341 solver.cpp:214] Iteration 3500, loss = 0.379323
+I0812 10:55:20.357483 16341 solver.cpp:229]     Train net output #0: loss = 0.379323 (* 1 = 0.379323 loss)
+I0812 10:55:20.357493 16341 solver.cpp:486] Iteration 3500, lr = 0.001
+I0812 10:55:20.362776 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.362848 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_4000.caffemodel
+I0812 10:55:20.363092 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_4000.solverstate
+I0812 10:55:20.363240 16341 solver.cpp:294] Iteration 4000, Testing net (#0)
+I0812 10:55:20.363273 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.363283 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.363294 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.364585 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.364619 16341 solver.cpp:343]     Test net output #1: loss = 0.334894 (* 1 = 0.334894 loss)
+I0812 10:55:20.364666 16341 solver.cpp:214] Iteration 4000, loss = 0.359688
+I0812 10:55:20.364682 16341 solver.cpp:229]     Train net output #0: loss = 0.359688 (* 1 = 0.359688 loss)
+I0812 10:55:20.364694 16341 solver.cpp:486] Iteration 4000, lr = 0.001
+I0812 10:55:20.369892 16341 solver.cpp:214] Iteration 4500, loss = 0.342716
+I0812 10:55:20.369916 16341 solver.cpp:229]     Train net output #0: loss = 0.342716 (* 1 = 0.342716 loss)
+I0812 10:55:20.369927 16341 solver.cpp:486] Iteration 4500, lr = 0.001
+I0812 10:55:20.375059 16341 solver.cpp:294] Iteration 5000, Testing net (#0)
+I0812 10:55:20.375119 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.375129 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.375141 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.376425 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.376451 16341 solver.cpp:343]     Test net output #1: loss = 0.306316 (* 1 = 0.306316 loss)
+I0812 10:55:20.376488 16341 solver.cpp:214] Iteration 5000, loss = 0.327853
+I0812 10:55:20.376523 16341 solver.cpp:229]     Train net output #0: loss = 0.327853 (* 1 = 0.327853 loss)
+I0812 10:55:20.376572 16341 solver.cpp:486] Iteration 5000, lr = 0.001
+I0812 10:55:20.381805 16341 solver.cpp:214] Iteration 5500, loss = 0.314694
+I0812 10:55:20.381829 16341 solver.cpp:229]     Train net output #0: loss = 0.314694 (* 1 = 0.314694 loss)
+I0812 10:55:20.381840 16341 solver.cpp:486] Iteration 5500, lr = 0.001
+I0812 10:55:20.386893 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.386929 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_6000.caffemodel
+I0812 10:55:20.387130 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_6000.solverstate
+I0812 10:55:20.387290 16341 solver.cpp:294] Iteration 6000, Testing net (#0)
+I0812 10:55:20.387323 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.387332 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.387341 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.388638 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.388661 16341 solver.cpp:343]     Test net output #1: loss = 0.28625 (* 1 = 0.28625 loss)
+I0812 10:55:20.388686 16341 solver.cpp:214] Iteration 6000, loss = 0.302935
+I0812 10:55:20.388701 16341 solver.cpp:229]     Train net output #0: loss = 0.302935 (* 1 = 0.302935 loss)
+I0812 10:55:20.388712 16341 solver.cpp:486] Iteration 6000, lr = 0.001
+I0812 10:55:20.393924 16341 solver.cpp:214] Iteration 6500, loss = 0.292342
+I0812 10:55:20.393960 16341 solver.cpp:229]     Train net output #0: loss = 0.292342 (* 1 = 0.292342 loss)
+I0812 10:55:20.393970 16341 solver.cpp:486] Iteration 6500, lr = 0.001
+I0812 10:55:20.399049 16341 solver.cpp:294] Iteration 7000, Testing net (#0)
+I0812 10:55:20.399065 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.399073 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.399082 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.400418 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.400449 16341 solver.cpp:343]     Test net output #1: loss = 0.267397 (* 1 = 0.267397 loss)
+I0812 10:55:20.400504 16341 solver.cpp:214] Iteration 7000, loss = 0.282732
+I0812 10:55:20.400529 16341 solver.cpp:229]     Train net output #0: loss = 0.282732 (* 1 = 0.282732 loss)
+I0812 10:55:20.400539 16341 solver.cpp:486] Iteration 7000, lr = 0.001
+I0812 10:55:20.405650 16341 solver.cpp:214] Iteration 7500, loss = 0.273962
+I0812 10:55:20.405673 16341 solver.cpp:229]     Train net output #0: loss = 0.273962 (* 1 = 0.273962 loss)
+I0812 10:55:20.405683 16341 solver.cpp:486] Iteration 7500, lr = 0.001
+I0812 10:55:20.410887 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.410933 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_8000.caffemodel
+I0812 10:55:20.411152 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_8000.solverstate
+I0812 10:55:20.411284 16341 solver.cpp:294] Iteration 8000, Testing net (#0)
+I0812 10:55:20.411319 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.411329 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.411339 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.412642 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.412667 16341 solver.cpp:343]     Test net output #1: loss = 0.253753 (* 1 = 0.253753 loss)
+I0812 10:55:20.412701 16341 solver.cpp:214] Iteration 8000, loss = 0.265915
+I0812 10:55:20.412727 16341 solver.cpp:229]     Train net output #0: loss = 0.265915 (* 1 = 0.265915 loss)
+I0812 10:55:20.412739 16341 solver.cpp:486] Iteration 8000, lr = 0.001
+I0812 10:55:20.417837 16341 solver.cpp:214] Iteration 8500, loss = 0.258496
+I0812 10:55:20.417871 16341 solver.cpp:229]     Train net output #0: loss = 0.258496 (* 1 = 0.258496 loss)
+I0812 10:55:20.417882 16341 solver.cpp:486] Iteration 8500, lr = 0.001
+I0812 10:55:20.423013 16341 solver.cpp:294] Iteration 9000, Testing net (#0)
+I0812 10:55:20.423029 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.423038 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.423068 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.424432 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.424469 16341 solver.cpp:343]     Test net output #1: loss = 0.243387 (* 1 = 0.243387 loss)
+I0812 10:55:20.424495 16341 solver.cpp:214] Iteration 9000, loss = 0.251628
+I0812 10:55:20.424531 16341 solver.cpp:229]     Train net output #0: loss = 0.251628 (* 1 = 0.251628 loss)
+I0812 10:55:20.424542 16341 solver.cpp:486] Iteration 9000, lr = 0.001
+I0812 10:55:20.429774 16341 solver.cpp:214] Iteration 9500, loss = 0.245246
+I0812 10:55:20.429806 16341 solver.cpp:229]     Train net output #0: loss = 0.245246 (* 1 = 0.245246 loss)
+I0812 10:55:20.429816 16341 solver.cpp:486] Iteration 9500, lr = 0.001
+I0812 10:55:20.434823 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.434859 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_10000.caffemodel
+I0812 10:55:20.435061 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_10000.solverstate
+I0812 10:55:20.435200 16341 solver.cpp:294] Iteration 10000, Testing net (#0)
+I0812 10:55:20.435237 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.435256 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.435266 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.436573 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.436604 16341 solver.cpp:343]     Test net output #1: loss = 0.231769 (* 1 = 0.231769 loss)
+I0812 10:55:20.436640 16341 solver.cpp:214] Iteration 10000, loss = 0.239295
+I0812 10:55:20.436664 16341 solver.cpp:229]     Train net output #0: loss = 0.239295 (* 1 = 0.239295 loss)
+I0812 10:55:20.436686 16341 solver.cpp:486] Iteration 10000, lr = 0.001
+I0812 10:55:20.441949 16341 solver.cpp:214] Iteration 10500, loss = 0.23373
+I0812 10:55:20.442019 16341 solver.cpp:229]     Train net output #0: loss = 0.23373 (* 1 = 0.23373 loss)
+I0812 10:55:20.442031 16341 solver.cpp:486] Iteration 10500, lr = 0.001
+I0812 10:55:20.447060 16341 solver.cpp:294] Iteration 11000, Testing net (#0)
+I0812 10:55:20.447077 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.447085 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.447093 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.448346 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.448390 16341 solver.cpp:343]     Test net output #1: loss = 0.223703 (* 1 = 0.223703 loss)
+I0812 10:55:20.448423 16341 solver.cpp:214] Iteration 11000, loss = 0.228509
+I0812 10:55:20.448470 16341 solver.cpp:229]     Train net output #0: loss = 0.228509 (* 1 = 0.228509 loss)
+I0812 10:55:20.448492 16341 solver.cpp:486] Iteration 11000, lr = 0.001
+I0812 10:55:20.453727 16341 solver.cpp:214] Iteration 11500, loss = 0.2236
+I0812 10:55:20.453763 16341 solver.cpp:229]     Train net output #0: loss = 0.2236 (* 1 = 0.2236 loss)
+I0812 10:55:20.453773 16341 solver.cpp:486] Iteration 11500, lr = 0.001
+I0812 10:55:20.458945 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.458992 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_12000.caffemodel
+I0812 10:55:20.459164 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_12000.solverstate
+I0812 10:55:20.459285 16341 solver.cpp:294] Iteration 12000, Testing net (#0)
+I0812 10:55:20.459309 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.459319 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.459329 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.460577 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.460611 16341 solver.cpp:343]     Test net output #1: loss = 0.217212 (* 1 = 0.217212 loss)
+I0812 10:55:20.460646 16341 solver.cpp:214] Iteration 12000, loss = 0.218974
+I0812 10:55:20.460661 16341 solver.cpp:229]     Train net output #0: loss = 0.218974 (* 1 = 0.218974 loss)
+I0812 10:55:20.460672 16341 solver.cpp:486] Iteration 12000, lr = 0.001
+I0812 10:55:20.465852 16341 solver.cpp:214] Iteration 12500, loss = 0.214604
+I0812 10:55:20.465878 16341 solver.cpp:229]     Train net output #0: loss = 0.214604 (* 1 = 0.214604 loss)
+I0812 10:55:20.465889 16341 solver.cpp:486] Iteration 12500, lr = 0.001
+I0812 10:55:20.470989 16341 solver.cpp:294] Iteration 13000, Testing net (#0)
+I0812 10:55:20.471005 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.471014 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.471021 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.472239 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.472259 16341 solver.cpp:343]     Test net output #1: loss = 0.2089 (* 1 = 0.2089 loss)
+I0812 10:55:20.472283 16341 solver.cpp:214] Iteration 13000, loss = 0.210468
+I0812 10:55:20.472298 16341 solver.cpp:229]     Train net output #0: loss = 0.210468 (* 1 = 0.210468 loss)
+I0812 10:55:20.472309 16341 solver.cpp:486] Iteration 13000, lr = 0.001
+I0812 10:55:20.477509 16341 solver.cpp:214] Iteration 13500, loss = 0.206547
+I0812 10:55:20.477542 16341 solver.cpp:229]     Train net output #0: loss = 0.206547 (* 1 = 0.206547 loss)
+I0812 10:55:20.477552 16341 solver.cpp:486] Iteration 13500, lr = 0.001
+I0812 10:55:20.482740 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.482775 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_14000.caffemodel
+I0812 10:55:20.483068 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_14000.solverstate
+I0812 10:55:20.483208 16341 solver.cpp:294] Iteration 14000, Testing net (#0)
+I0812 10:55:20.483254 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.483264 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.483273 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.484531 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.484554 16341 solver.cpp:343]     Test net output #1: loss = 0.203614 (* 1 = 0.203614 loss)
+I0812 10:55:20.484578 16341 solver.cpp:214] Iteration 14000, loss = 0.202823
+I0812 10:55:20.484593 16341 solver.cpp:229]     Train net output #0: loss = 0.202823 (* 1 = 0.202823 loss)
+I0812 10:55:20.484603 16341 solver.cpp:486] Iteration 14000, lr = 0.001
+I0812 10:55:20.489739 16341 solver.cpp:214] Iteration 14500, loss = 0.19928
+I0812 10:55:20.489766 16341 solver.cpp:229]     Train net output #0: loss = 0.19928 (* 1 = 0.19928 loss)
+I0812 10:55:20.489776 16341 solver.cpp:486] Iteration 14500, lr = 0.001
+I0812 10:55:20.494911 16341 solver.cpp:294] Iteration 15000, Testing net (#0)
+I0812 10:55:20.494933 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.494941 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.494951 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.496168 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.496191 16341 solver.cpp:343]     Test net output #1: loss = 0.199074 (* 1 = 0.199074 loss)
+I0812 10:55:20.496217 16341 solver.cpp:214] Iteration 15000, loss = 0.195905
+I0812 10:55:20.496232 16341 solver.cpp:229]     Train net output #0: loss = 0.195905 (* 1 = 0.195905 loss)
+I0812 10:55:20.496242 16341 solver.cpp:486] Iteration 15000, lr = 0.001
+I0812 10:55:20.501359 16341 solver.cpp:214] Iteration 15500, loss = 0.192684
+I0812 10:55:20.501384 16341 solver.cpp:229]     Train net output #0: loss = 0.192684 (* 1 = 0.192684 loss)
+I0812 10:55:20.501394 16341 solver.cpp:486] Iteration 15500, lr = 0.001
+I0812 10:55:20.506490 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.506530 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_16000.caffemodel
+I0812 10:55:20.506749 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_16000.solverstate
+I0812 10:55:20.506896 16341 solver.cpp:294] Iteration 16000, Testing net (#0)
+I0812 10:55:20.506932 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.506953 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.506973 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.508224 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.508268 16341 solver.cpp:343]     Test net output #1: loss = 0.192594 (* 1 = 0.192594 loss)
+I0812 10:55:20.508302 16341 solver.cpp:214] Iteration 16000, loss = 0.189608
+I0812 10:55:20.508318 16341 solver.cpp:229]     Train net output #0: loss = 0.189608 (* 1 = 0.189608 loss)
+I0812 10:55:20.508330 16341 solver.cpp:486] Iteration 16000, lr = 0.001
+I0812 10:55:20.513429 16341 solver.cpp:214] Iteration 16500, loss = 0.186666
+I0812 10:55:20.513459 16341 solver.cpp:229]     Train net output #0: loss = 0.186666 (* 1 = 0.186666 loss)
+I0812 10:55:20.513470 16341 solver.cpp:486] Iteration 16500, lr = 0.001
+I0812 10:55:20.518566 16341 solver.cpp:294] Iteration 17000, Testing net (#0)
+I0812 10:55:20.518582 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.518590 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.518599 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.519872 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.519893 16341 solver.cpp:343]     Test net output #1: loss = 0.188934 (* 1 = 0.188934 loss)
+I0812 10:55:20.519927 16341 solver.cpp:214] Iteration 17000, loss = 0.183848
+I0812 10:55:20.519942 16341 solver.cpp:229]     Train net output #0: loss = 0.183848 (* 1 = 0.183848 loss)
+I0812 10:55:20.519964 16341 solver.cpp:486] Iteration 17000, lr = 0.001
+I0812 10:55:20.525116 16341 solver.cpp:214] Iteration 17500, loss = 0.181148
+I0812 10:55:20.525149 16341 solver.cpp:229]     Train net output #0: loss = 0.181148 (* 1 = 0.181148 loss)
+I0812 10:55:20.525161 16341 solver.cpp:486] Iteration 17500, lr = 0.001
+I0812 10:55:20.530391 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.530429 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_18000.caffemodel
+I0812 10:55:20.530653 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_18000.solverstate
+I0812 10:55:20.530812 16341 solver.cpp:294] Iteration 18000, Testing net (#0)
+I0812 10:55:20.530859 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.530880 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.530901 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.532243 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.532277 16341 solver.cpp:343]     Test net output #1: loss = 0.185524 (* 1 = 0.185524 loss)
+I0812 10:55:20.532305 16341 solver.cpp:214] Iteration 18000, loss = 0.178556
+I0812 10:55:20.532320 16341 solver.cpp:229]     Train net output #0: loss = 0.178556 (* 1 = 0.178556 loss)
+I0812 10:55:20.532330 16341 solver.cpp:486] Iteration 18000, lr = 0.001
+I0812 10:55:20.537459 16341 solver.cpp:214] Iteration 18500, loss = 0.176066
+I0812 10:55:20.537482 16341 solver.cpp:229]     Train net output #0: loss = 0.176066 (* 1 = 0.176066 loss)
+I0812 10:55:20.537492 16341 solver.cpp:486] Iteration 18500, lr = 0.001
+I0812 10:55:20.542556 16341 solver.cpp:294] Iteration 19000, Testing net (#0)
+I0812 10:55:20.542577 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.542584 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.542593 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.543828 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.543864 16341 solver.cpp:343]     Test net output #1: loss = 0.18019 (* 1 = 0.18019 loss)
+I0812 10:55:20.543898 16341 solver.cpp:214] Iteration 19000, loss = 0.173672
+I0812 10:55:20.543913 16341 solver.cpp:229]     Train net output #0: loss = 0.173672 (* 1 = 0.173672 loss)
+I0812 10:55:20.543923 16341 solver.cpp:486] Iteration 19000, lr = 0.001
+I0812 10:55:20.549281 16341 solver.cpp:214] Iteration 19500, loss = 0.171369
+I0812 10:55:20.549306 16341 solver.cpp:229]     Train net output #0: loss = 0.171369 (* 1 = 0.171369 loss)
+I0812 10:55:20.549317 16341 solver.cpp:486] Iteration 19500, lr = 0.001
+I0812 10:55:20.554558 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.554617 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_20000.caffemodel
+I0812 10:55:20.554841 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_20000.solverstate
+I0812 10:55:20.554973 16341 solver.cpp:294] Iteration 20000, Testing net (#0)
+I0812 10:55:20.554997 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.555007 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.555016 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.556246 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.556270 16341 solver.cpp:343]     Test net output #1: loss = 0.177581 (* 1 = 0.177581 loss)
+I0812 10:55:20.556296 16341 solver.cpp:214] Iteration 20000, loss = 0.16915
+I0812 10:55:20.556311 16341 solver.cpp:229]     Train net output #0: loss = 0.16915 (* 1 = 0.16915 loss)
+I0812 10:55:20.556324 16341 solver.cpp:486] Iteration 20000, lr = 0.001
+I0812 10:55:20.561530 16341 solver.cpp:214] Iteration 20500, loss = 0.167012
+I0812 10:55:20.561565 16341 solver.cpp:229]     Train net output #0: loss = 0.167012 (* 1 = 0.167012 loss)
+I0812 10:55:20.561575 16341 solver.cpp:486] Iteration 20500, lr = 0.001
+I0812 10:55:20.566818 16341 solver.cpp:294] Iteration 21000, Testing net (#0)
+I0812 10:55:20.566836 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.566844 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.566854 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.568070 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.568091 16341 solver.cpp:343]     Test net output #1: loss = 0.17489 (* 1 = 0.17489 loss)
+I0812 10:55:20.568115 16341 solver.cpp:214] Iteration 21000, loss = 0.164949
+I0812 10:55:20.568130 16341 solver.cpp:229]     Train net output #0: loss = 0.164949 (* 1 = 0.164949 loss)
+I0812 10:55:20.568140 16341 solver.cpp:486] Iteration 21000, lr = 0.001
+I0812 10:55:20.573268 16341 solver.cpp:214] Iteration 21500, loss = 0.162957
+I0812 10:55:20.573294 16341 solver.cpp:229]     Train net output #0: loss = 0.162957 (* 1 = 0.162957 loss)
+I0812 10:55:20.573305 16341 solver.cpp:486] Iteration 21500, lr = 0.001
+I0812 10:55:20.578419 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.578464 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_22000.caffemodel
+I0812 10:55:20.578631 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_22000.solverstate
+I0812 10:55:20.578773 16341 solver.cpp:294] Iteration 22000, Testing net (#0)
+I0812 10:55:20.578809 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.578841 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.578850 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.580164 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.580199 16341 solver.cpp:343]     Test net output #1: loss = 0.170333 (* 1 = 0.170333 loss)
+I0812 10:55:20.580224 16341 solver.cpp:214] Iteration 22000, loss = 0.161034
+I0812 10:55:20.580262 16341 solver.cpp:229]     Train net output #0: loss = 0.161034 (* 1 = 0.161034 loss)
+I0812 10:55:20.580273 16341 solver.cpp:486] Iteration 22000, lr = 0.001
+I0812 10:55:20.585428 16341 solver.cpp:214] Iteration 22500, loss = 0.159174
+I0812 10:55:20.585455 16341 solver.cpp:229]     Train net output #0: loss = 0.159174 (* 1 = 0.159174 loss)
+I0812 10:55:20.585466 16341 solver.cpp:486] Iteration 22500, lr = 0.001
+I0812 10:55:20.590703 16341 solver.cpp:294] Iteration 23000, Testing net (#0)
+I0812 10:55:20.590721 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.590729 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.590737 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.592140 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.592206 16341 solver.cpp:343]     Test net output #1: loss = 0.168453 (* 1 = 0.168453 loss)
+I0812 10:55:20.592236 16341 solver.cpp:214] Iteration 23000, loss = 0.157375
+I0812 10:55:20.592278 16341 solver.cpp:229]     Train net output #0: loss = 0.157375 (* 1 = 0.157375 loss)
+I0812 10:55:20.592288 16341 solver.cpp:486] Iteration 23000, lr = 0.001
+I0812 10:55:20.597486 16341 solver.cpp:214] Iteration 23500, loss = 0.155634
+I0812 10:55:20.597512 16341 solver.cpp:229]     Train net output #0: loss = 0.155634 (* 1 = 0.155634 loss)
+I0812 10:55:20.597523 16341 solver.cpp:486] Iteration 23500, lr = 0.001
+I0812 10:55:20.602639 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.602677 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_24000.caffemodel
+I0812 10:55:20.602882 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_24000.solverstate
+I0812 10:55:20.603036 16341 solver.cpp:294] Iteration 24000, Testing net (#0)
+I0812 10:55:20.603060 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.603070 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.603078 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.604316 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.604341 16341 solver.cpp:343]     Test net output #1: loss = 0.166253 (* 1 = 0.166253 loss)
+I0812 10:55:20.604367 16341 solver.cpp:214] Iteration 24000, loss = 0.153947
+I0812 10:55:20.604382 16341 solver.cpp:229]     Train net output #0: loss = 0.153947 (* 1 = 0.153947 loss)
+I0812 10:55:20.604392 16341 solver.cpp:486] Iteration 24000, lr = 0.001
+I0812 10:55:20.609531 16341 solver.cpp:214] Iteration 24500, loss = 0.152313
+I0812 10:55:20.609565 16341 solver.cpp:229]     Train net output #0: loss = 0.152313 (* 1 = 0.152313 loss)
+I0812 10:55:20.609575 16341 solver.cpp:486] Iteration 24500, lr = 0.001
+I0812 10:55:20.614672 16341 solver.cpp:294] Iteration 25000, Testing net (#0)
+I0812 10:55:20.614688 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.614709 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.614719 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.615991 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.616010 16341 solver.cpp:343]     Test net output #1: loss = 0.162255 (* 1 = 0.162255 loss)
+I0812 10:55:20.616047 16341 solver.cpp:214] Iteration 25000, loss = 0.150729
+I0812 10:55:20.616061 16341 solver.cpp:229]     Train net output #0: loss = 0.150729 (* 1 = 0.150729 loss)
+I0812 10:55:20.616072 16341 solver.cpp:486] Iteration 25000, lr = 0.001
+I0812 10:55:20.621237 16341 solver.cpp:214] Iteration 25500, loss = 0.149192
+I0812 10:55:20.621261 16341 solver.cpp:229]     Train net output #0: loss = 0.149192 (* 1 = 0.149192 loss)
+I0812 10:55:20.621273 16341 solver.cpp:486] Iteration 25500, lr = 0.001
+I0812 10:55:20.626430 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.626474 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_26000.caffemodel
+I0812 10:55:20.626641 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_26000.solverstate
+I0812 10:55:20.626757 16341 solver.cpp:294] Iteration 26000, Testing net (#0)
+I0812 10:55:20.626782 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.626791 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.626801 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.628026 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.628049 16341 solver.cpp:343]     Test net output #1: loss = 0.160907 (* 1 = 0.160907 loss)
+I0812 10:55:20.628074 16341 solver.cpp:214] Iteration 26000, loss = 0.1477
+I0812 10:55:20.628089 16341 solver.cpp:229]     Train net output #0: loss = 0.1477 (* 1 = 0.1477 loss)
+I0812 10:55:20.628099 16341 solver.cpp:486] Iteration 26000, lr = 0.001
+I0812 10:55:20.633230 16341 solver.cpp:214] Iteration 26500, loss = 0.146252
+I0812 10:55:20.633255 16341 solver.cpp:229]     Train net output #0: loss = 0.146252 (* 1 = 0.146252 loss)
+I0812 10:55:20.633266 16341 solver.cpp:486] Iteration 26500, lr = 0.001
+I0812 10:55:20.638420 16341 solver.cpp:294] Iteration 27000, Testing net (#0)
+I0812 10:55:20.638437 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.638443 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.638453 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.639763 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.639822 16341 solver.cpp:343]     Test net output #1: loss = 0.159059 (* 1 = 0.159059 loss)
+I0812 10:55:20.639845 16341 solver.cpp:214] Iteration 27000, loss = 0.144844
+I0812 10:55:20.639873 16341 solver.cpp:229]     Train net output #0: loss = 0.144844 (* 1 = 0.144844 loss)
+I0812 10:55:20.639894 16341 solver.cpp:486] Iteration 27000, lr = 0.001
+I0812 10:55:20.645092 16341 solver.cpp:214] Iteration 27500, loss = 0.143477
+I0812 10:55:20.645124 16341 solver.cpp:229]     Train net output #0: loss = 0.143477 (* 1 = 0.143477 loss)
+I0812 10:55:20.645135 16341 solver.cpp:486] Iteration 27500, lr = 0.001
+I0812 10:55:20.650204 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.650239 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_28000.caffemodel
+I0812 10:55:20.650437 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_28000.solverstate
+I0812 10:55:20.650579 16341 solver.cpp:294] Iteration 28000, Testing net (#0)
+I0812 10:55:20.650629 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.650637 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.650646 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.651907 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.651931 16341 solver.cpp:343]     Test net output #1: loss = 0.155481 (* 1 = 0.155481 loss)
+I0812 10:55:20.651957 16341 solver.cpp:214] Iteration 28000, loss = 0.142147
+I0812 10:55:20.651973 16341 solver.cpp:229]     Train net output #0: loss = 0.142147 (* 1 = 0.142147 loss)
+I0812 10:55:20.651984 16341 solver.cpp:486] Iteration 28000, lr = 0.001
+I0812 10:55:20.657181 16341 solver.cpp:214] Iteration 28500, loss = 0.140853
+I0812 10:55:20.657218 16341 solver.cpp:229]     Train net output #0: loss = 0.140853 (* 1 = 0.140853 loss)
+I0812 10:55:20.657229 16341 solver.cpp:486] Iteration 28500, lr = 0.001
+I0812 10:55:20.662349 16341 solver.cpp:294] Iteration 29000, Testing net (#0)
+I0812 10:55:20.662374 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.662381 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.662390 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.663621 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.663643 16341 solver.cpp:343]     Test net output #1: loss = 0.154536 (* 1 = 0.154536 loss)
+I0812 10:55:20.663678 16341 solver.cpp:214] Iteration 29000, loss = 0.139594
+I0812 10:55:20.663693 16341 solver.cpp:229]     Train net output #0: loss = 0.139594 (* 1 = 0.139594 loss)
+I0812 10:55:20.663717 16341 solver.cpp:486] Iteration 29000, lr = 0.001
+I0812 10:55:20.668856 16341 solver.cpp:214] Iteration 29500, loss = 0.138368
+I0812 10:55:20.668879 16341 solver.cpp:229]     Train net output #0: loss = 0.138368 (* 1 = 0.138368 loss)
+I0812 10:55:20.668889 16341 solver.cpp:486] Iteration 29500, lr = 0.001
+I0812 10:55:20.673959 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.674022 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_30000.caffemodel
+I0812 10:55:20.674281 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_30000.solverstate
+I0812 10:55:20.674466 16341 solver.cpp:294] Iteration 30000, Testing net (#0)
+I0812 10:55:20.674491 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.674500 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.674510 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.675844 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.675880 16341 solver.cpp:343]     Test net output #1: loss = 0.152951 (* 1 = 0.152951 loss)
+I0812 10:55:20.675909 16341 solver.cpp:214] Iteration 30000, loss = 0.137174
+I0812 10:55:20.675925 16341 solver.cpp:229]     Train net output #0: loss = 0.137174 (* 1 = 0.137174 loss)
+I0812 10:55:20.675936 16341 solver.cpp:486] Iteration 30000, lr = 0.001
+I0812 10:55:20.681051 16341 solver.cpp:214] Iteration 30500, loss = 0.136011
+I0812 10:55:20.681099 16341 solver.cpp:229]     Train net output #0: loss = 0.136011 (* 1 = 0.136011 loss)
+I0812 10:55:20.681110 16341 solver.cpp:486] Iteration 30500, lr = 0.001
+I0812 10:55:20.686152 16341 solver.cpp:294] Iteration 31000, Testing net (#0)
+I0812 10:55:20.686168 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.686177 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.686184 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.687513 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.687546 16341 solver.cpp:343]     Test net output #1: loss = 0.1497 (* 1 = 0.1497 loss)
+I0812 10:55:20.687580 16341 solver.cpp:214] Iteration 31000, loss = 0.134877
+I0812 10:55:20.687619 16341 solver.cpp:229]     Train net output #0: loss = 0.134877 (* 1 = 0.134877 loss)
+I0812 10:55:20.687630 16341 solver.cpp:486] Iteration 31000, lr = 0.001
+I0812 10:55:20.692838 16341 solver.cpp:214] Iteration 31500, loss = 0.133772
+I0812 10:55:20.692870 16341 solver.cpp:229]     Train net output #0: loss = 0.133772 (* 1 = 0.133772 loss)
+I0812 10:55:20.692880 16341 solver.cpp:486] Iteration 31500, lr = 0.001
+I0812 10:55:20.697912 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.697947 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_32000.caffemodel
+I0812 10:55:20.698246 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_32000.solverstate
+I0812 10:55:20.698410 16341 solver.cpp:294] Iteration 32000, Testing net (#0)
+I0812 10:55:20.698457 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.698467 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.698477 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.699812 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.699833 16341 solver.cpp:343]     Test net output #1: loss = 0.149069 (* 1 = 0.149069 loss)
+I0812 10:55:20.699868 16341 solver.cpp:214] Iteration 32000, loss = 0.132693
+I0812 10:55:20.699895 16341 solver.cpp:229]     Train net output #0: loss = 0.132693 (* 1 = 0.132693 loss)
+I0812 10:55:20.699906 16341 solver.cpp:486] Iteration 32000, lr = 0.001
+I0812 10:55:20.705111 16341 solver.cpp:214] Iteration 32500, loss = 0.131641
+I0812 10:55:20.705137 16341 solver.cpp:229]     Train net output #0: loss = 0.131641 (* 1 = 0.131641 loss)
+I0812 10:55:20.705147 16341 solver.cpp:486] Iteration 32500, lr = 0.001
+I0812 10:55:20.710348 16341 solver.cpp:294] Iteration 33000, Testing net (#0)
+I0812 10:55:20.710369 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.710377 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.710386 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.711632 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.711701 16341 solver.cpp:343]     Test net output #1: loss = 0.147686 (* 1 = 0.147686 loss)
+I0812 10:55:20.711725 16341 solver.cpp:214] Iteration 33000, loss = 0.130615
+I0812 10:55:20.711765 16341 solver.cpp:229]     Train net output #0: loss = 0.130615 (* 1 = 0.130615 loss)
+I0812 10:55:20.711774 16341 solver.cpp:486] Iteration 33000, lr = 0.001
+I0812 10:55:20.716970 16341 solver.cpp:214] Iteration 33500, loss = 0.129613
+I0812 10:55:20.716995 16341 solver.cpp:229]     Train net output #0: loss = 0.129613 (* 1 = 0.129613 loss)
+I0812 10:55:20.717005 16341 solver.cpp:486] Iteration 33500, lr = 0.001
+I0812 10:55:20.722126 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.722160 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_34000.caffemodel
+I0812 10:55:20.722368 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_34000.solverstate
+I0812 10:55:20.722520 16341 solver.cpp:294] Iteration 34000, Testing net (#0)
+I0812 10:55:20.722558 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.722566 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.722576 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.723901 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.723984 16341 solver.cpp:343]     Test net output #1: loss = 0.144697 (* 1 = 0.144697 loss)
+I0812 10:55:20.724025 16341 solver.cpp:214] Iteration 34000, loss = 0.128634
+I0812 10:55:20.724045 16341 solver.cpp:229]     Train net output #0: loss = 0.128634 (* 1 = 0.128634 loss)
+I0812 10:55:20.724058 16341 solver.cpp:486] Iteration 34000, lr = 0.001
+I0812 10:55:20.729202 16341 solver.cpp:214] Iteration 34500, loss = 0.127678
+I0812 10:55:20.729241 16341 solver.cpp:229]     Train net output #0: loss = 0.127678 (* 1 = 0.127678 loss)
+I0812 10:55:20.729253 16341 solver.cpp:486] Iteration 34500, lr = 0.001
+I0812 10:55:20.734557 16341 solver.cpp:294] Iteration 35000, Testing net (#0)
+I0812 10:55:20.734575 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.734582 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.734591 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.735822 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.735843 16341 solver.cpp:343]     Test net output #1: loss = 0.144317 (* 1 = 0.144317 loss)
+I0812 10:55:20.735893 16341 solver.cpp:214] Iteration 35000, loss = 0.126743
+I0812 10:55:20.735906 16341 solver.cpp:229]     Train net output #0: loss = 0.126743 (* 1 = 0.126743 loss)
+I0812 10:55:20.735915 16341 solver.cpp:486] Iteration 35000, lr = 0.001
+I0812 10:55:20.741152 16341 solver.cpp:214] Iteration 35500, loss = 0.125831
+I0812 10:55:20.741199 16341 solver.cpp:229]     Train net output #0: loss = 0.125831 (* 1 = 0.125831 loss)
+I0812 10:55:20.741212 16341 solver.cpp:486] Iteration 35500, lr = 0.001
+I0812 10:55:20.746357 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.746395 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_36000.caffemodel
+I0812 10:55:20.746605 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_36000.solverstate
+I0812 10:55:20.746747 16341 solver.cpp:294] Iteration 36000, Testing net (#0)
+I0812 10:55:20.746784 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.746806 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.746816 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.748090 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.748126 16341 solver.cpp:343]     Test net output #1: loss = 0.143093 (* 1 = 0.143093 loss)
+I0812 10:55:20.748152 16341 solver.cpp:214] Iteration 36000, loss = 0.124938
+I0812 10:55:20.748190 16341 solver.cpp:229]     Train net output #0: loss = 0.124938 (* 1 = 0.124938 loss)
+I0812 10:55:20.748203 16341 solver.cpp:486] Iteration 36000, lr = 0.001
+I0812 10:55:20.753394 16341 solver.cpp:214] Iteration 36500, loss = 0.124065
+I0812 10:55:20.753420 16341 solver.cpp:229]     Train net output #0: loss = 0.124065 (* 1 = 0.124065 loss)
+I0812 10:55:20.753432 16341 solver.cpp:486] Iteration 36500, lr = 0.001
+I0812 10:55:20.758607 16341 solver.cpp:294] Iteration 37000, Testing net (#0)
+I0812 10:55:20.758632 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.758641 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.758649 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.759918 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.759971 16341 solver.cpp:343]     Test net output #1: loss = 0.140318 (* 1 = 0.140318 loss)
+I0812 10:55:20.760020 16341 solver.cpp:214] Iteration 37000, loss = 0.123211
+I0812 10:55:20.760046 16341 solver.cpp:229]     Train net output #0: loss = 0.123211 (* 1 = 0.123211 loss)
+I0812 10:55:20.760056 16341 solver.cpp:486] Iteration 37000, lr = 0.001
+I0812 10:55:20.765245 16341 solver.cpp:214] Iteration 37500, loss = 0.122376
+I0812 10:55:20.765281 16341 solver.cpp:229]     Train net output #0: loss = 0.122376 (* 1 = 0.122376 loss)
+I0812 10:55:20.765292 16341 solver.cpp:486] Iteration 37500, lr = 0.001
+I0812 10:55:20.770478 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.770514 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_38000.caffemodel
+I0812 10:55:20.770711 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_38000.solverstate
+I0812 10:55:20.770841 16341 solver.cpp:294] Iteration 38000, Testing net (#0)
+I0812 10:55:20.770865 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.770874 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.770884 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.772269 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.772318 16341 solver.cpp:343]     Test net output #1: loss = 0.140141 (* 1 = 0.140141 loss)
+I0812 10:55:20.772346 16341 solver.cpp:214] Iteration 38000, loss = 0.121558
+I0812 10:55:20.772361 16341 solver.cpp:229]     Train net output #0: loss = 0.121558 (* 1 = 0.121558 loss)
+I0812 10:55:20.772383 16341 solver.cpp:486] Iteration 38000, lr = 0.001
+I0812 10:55:20.777621 16341 solver.cpp:214] Iteration 38500, loss = 0.120758
+I0812 10:55:20.777653 16341 solver.cpp:229]     Train net output #0: loss = 0.120758 (* 1 = 0.120758 loss)
+I0812 10:55:20.777663 16341 solver.cpp:486] Iteration 38500, lr = 0.001
+I0812 10:55:20.782707 16341 solver.cpp:294] Iteration 39000, Testing net (#0)
+I0812 10:55:20.782735 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.782743 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.782752 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.783927 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.783964 16341 solver.cpp:343]     Test net output #1: loss = 0.139047 (* 1 = 0.139047 loss)
+I0812 10:55:20.784013 16341 solver.cpp:214] Iteration 39000, loss = 0.119974
+I0812 10:55:20.784026 16341 solver.cpp:229]     Train net output #0: loss = 0.119974 (* 1 = 0.119974 loss)
+I0812 10:55:20.784037 16341 solver.cpp:486] Iteration 39000, lr = 0.001
+I0812 10:55:20.789225 16341 solver.cpp:214] Iteration 39500, loss = 0.119207
+I0812 10:55:20.789285 16341 solver.cpp:229]     Train net output #0: loss = 0.119207 (* 1 = 0.119207 loss)
+I0812 10:55:20.789297 16341 solver.cpp:486] Iteration 39500, lr = 0.001
+I0812 10:55:20.794450 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.794500 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_40000.caffemodel
+I0812 10:55:20.794673 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_40000.solverstate
+I0812 10:55:20.794791 16341 solver.cpp:294] Iteration 40000, Testing net (#0)
+I0812 10:55:20.794816 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.794826 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.794836 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.796082 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.796116 16341 solver.cpp:343]     Test net output #1: loss = 0.136449 (* 1 = 0.136449 loss)
+I0812 10:55:20.796144 16341 solver.cpp:214] Iteration 40000, loss = 0.118455
+I0812 10:55:20.796159 16341 solver.cpp:229]     Train net output #0: loss = 0.118455 (* 1 = 0.118455 loss)
+I0812 10:55:20.796169 16341 solver.cpp:486] Iteration 40000, lr = 0.001
+I0812 10:55:20.801301 16341 solver.cpp:214] Iteration 40500, loss = 0.117719
+I0812 10:55:20.801326 16341 solver.cpp:229]     Train net output #0: loss = 0.117719 (* 1 = 0.117719 loss)
+I0812 10:55:20.801337 16341 solver.cpp:486] Iteration 40500, lr = 0.001
+I0812 10:55:20.806627 16341 solver.cpp:294] Iteration 41000, Testing net (#0)
+I0812 10:55:20.806674 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.806684 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.806694 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.808012 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.808035 16341 solver.cpp:343]     Test net output #1: loss = 0.136441 (* 1 = 0.136441 loss)
+I0812 10:55:20.808058 16341 solver.cpp:214] Iteration 41000, loss = 0.116997
+I0812 10:55:20.808073 16341 solver.cpp:229]     Train net output #0: loss = 0.116997 (* 1 = 0.116997 loss)
+I0812 10:55:20.808084 16341 solver.cpp:486] Iteration 41000, lr = 0.001
+I0812 10:55:20.813231 16341 solver.cpp:214] Iteration 41500, loss = 0.11629
+I0812 10:55:20.813268 16341 solver.cpp:229]     Train net output #0: loss = 0.11629 (* 1 = 0.11629 loss)
+I0812 10:55:20.813279 16341 solver.cpp:486] Iteration 41500, lr = 0.001
+I0812 10:55:20.818416 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.818452 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_42000.caffemodel
+I0812 10:55:20.818656 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_42000.solverstate
+I0812 10:55:20.818805 16341 solver.cpp:294] Iteration 42000, Testing net (#0)
+I0812 10:55:20.818817 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.818847 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.818857 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.820119 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.820139 16341 solver.cpp:343]     Test net output #1: loss = 0.135452 (* 1 = 0.135452 loss)
+I0812 10:55:20.820164 16341 solver.cpp:214] Iteration 42000, loss = 0.115597
+I0812 10:55:20.820179 16341 solver.cpp:229]     Train net output #0: loss = 0.115597 (* 1 = 0.115597 loss)
+I0812 10:55:20.820190 16341 solver.cpp:486] Iteration 42000, lr = 0.001
+I0812 10:55:20.825340 16341 solver.cpp:214] Iteration 42500, loss = 0.114917
+I0812 10:55:20.825374 16341 solver.cpp:229]     Train net output #0: loss = 0.114917 (* 1 = 0.114917 loss)
+I0812 10:55:20.825387 16341 solver.cpp:486] Iteration 42500, lr = 0.001
+I0812 10:55:20.830487 16341 solver.cpp:294] Iteration 43000, Testing net (#0)
+I0812 10:55:20.830502 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.830520 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.830530 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.831807 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.831827 16341 solver.cpp:343]     Test net output #1: loss = 0.133003 (* 1 = 0.133003 loss)
+I0812 10:55:20.831850 16341 solver.cpp:214] Iteration 43000, loss = 0.11425
+I0812 10:55:20.831864 16341 solver.cpp:229]     Train net output #0: loss = 0.11425 (* 1 = 0.11425 loss)
+I0812 10:55:20.831884 16341 solver.cpp:486] Iteration 43000, lr = 0.001
+I0812 10:55:20.837203 16341 solver.cpp:214] Iteration 43500, loss = 0.113596
+I0812 10:55:20.837225 16341 solver.cpp:229]     Train net output #0: loss = 0.113596 (* 1 = 0.113596 loss)
+I0812 10:55:20.837236 16341 solver.cpp:486] Iteration 43500, lr = 0.001
+I0812 10:55:20.842422 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.842468 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_44000.caffemodel
+I0812 10:55:20.842633 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_44000.solverstate
+I0812 10:55:20.842753 16341 solver.cpp:294] Iteration 44000, Testing net (#0)
+I0812 10:55:20.842779 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.842792 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.842802 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.844027 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.844051 16341 solver.cpp:343]     Test net output #1: loss = 0.133137 (* 1 = 0.133137 loss)
+I0812 10:55:20.844079 16341 solver.cpp:214] Iteration 44000, loss = 0.112955
+I0812 10:55:20.844095 16341 solver.cpp:229]     Train net output #0: loss = 0.112955 (* 1 = 0.112955 loss)
+I0812 10:55:20.844107 16341 solver.cpp:486] Iteration 44000, lr = 0.001
+I0812 10:55:20.849203 16341 solver.cpp:214] Iteration 44500, loss = 0.112325
+I0812 10:55:20.849227 16341 solver.cpp:229]     Train net output #0: loss = 0.112325 (* 1 = 0.112325 loss)
+I0812 10:55:20.849238 16341 solver.cpp:486] Iteration 44500, lr = 0.001
+I0812 10:55:20.854404 16341 solver.cpp:294] Iteration 45000, Testing net (#0)
+I0812 10:55:20.854420 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.854429 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.854437 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.855778 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.855811 16341 solver.cpp:343]     Test net output #1: loss = 0.132237 (* 1 = 0.132237 loss)
+I0812 10:55:20.855844 16341 solver.cpp:214] Iteration 45000, loss = 0.111707
+I0812 10:55:20.855862 16341 solver.cpp:229]     Train net output #0: loss = 0.111707 (* 1 = 0.111707 loss)
+I0812 10:55:20.855872 16341 solver.cpp:486] Iteration 45000, lr = 0.001
+I0812 10:55:20.861090 16341 solver.cpp:214] Iteration 45500, loss = 0.111101
+I0812 10:55:20.861127 16341 solver.cpp:229]     Train net output #0: loss = 0.111101 (* 1 = 0.111101 loss)
+I0812 10:55:20.861138 16341 solver.cpp:486] Iteration 45500, lr = 0.001
+I0812 10:55:20.866204 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.866242 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_46000.caffemodel
+I0812 10:55:20.866441 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_46000.solverstate
+I0812 10:55:20.866611 16341 solver.cpp:294] Iteration 46000, Testing net (#0)
+I0812 10:55:20.866647 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.866657 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.866665 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.868021 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.868043 16341 solver.cpp:343]     Test net output #1: loss = 0.129915 (* 1 = 0.129915 loss)
+I0812 10:55:20.868068 16341 solver.cpp:214] Iteration 46000, loss = 0.110505
+I0812 10:55:20.868084 16341 solver.cpp:229]     Train net output #0: loss = 0.110505 (* 1 = 0.110505 loss)
+I0812 10:55:20.868095 16341 solver.cpp:486] Iteration 46000, lr = 0.001
+I0812 10:55:20.873234 16341 solver.cpp:214] Iteration 46500, loss = 0.109921
+I0812 10:55:20.873324 16341 solver.cpp:229]     Train net output #0: loss = 0.109921 (* 1 = 0.109921 loss)
+I0812 10:55:20.873339 16341 solver.cpp:486] Iteration 46500, lr = 0.001
+I0812 10:55:20.878494 16341 solver.cpp:294] Iteration 47000, Testing net (#0)
+I0812 10:55:20.878510 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.878520 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.878527 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.879850 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.879881 16341 solver.cpp:343]     Test net output #1: loss = 0.130169 (* 1 = 0.130169 loss)
+I0812 10:55:20.879905 16341 solver.cpp:214] Iteration 47000, loss = 0.109347
+I0812 10:55:20.879930 16341 solver.cpp:229]     Train net output #0: loss = 0.109347 (* 1 = 0.109347 loss)
+I0812 10:55:20.879951 16341 solver.cpp:486] Iteration 47000, lr = 0.001
+I0812 10:55:20.885165 16341 solver.cpp:214] Iteration 47500, loss = 0.108783
+I0812 10:55:20.885187 16341 solver.cpp:229]     Train net output #0: loss = 0.108783 (* 1 = 0.108783 loss)
+I0812 10:55:20.885198 16341 solver.cpp:486] Iteration 47500, lr = 0.001
+I0812 10:55:20.890386 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.890427 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_48000.caffemodel
+I0812 10:55:20.890602 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_48000.solverstate
+I0812 10:55:20.890774 16341 solver.cpp:294] Iteration 48000, Testing net (#0)
+I0812 10:55:20.890797 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.890807 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.890817 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.892134 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.892176 16341 solver.cpp:343]     Test net output #1: loss = 0.129342 (* 1 = 0.129342 loss)
+I0812 10:55:20.892201 16341 solver.cpp:214] Iteration 48000, loss = 0.108229
+I0812 10:55:20.892217 16341 solver.cpp:229]     Train net output #0: loss = 0.108229 (* 1 = 0.108229 loss)
+I0812 10:55:20.892238 16341 solver.cpp:486] Iteration 48000, lr = 0.001
+I0812 10:55:20.897410 16341 solver.cpp:214] Iteration 48500, loss = 0.107685
+I0812 10:55:20.897470 16341 solver.cpp:229]     Train net output #0: loss = 0.107685 (* 1 = 0.107685 loss)
+I0812 10:55:20.897482 16341 solver.cpp:486] Iteration 48500, lr = 0.001
+I0812 10:55:20.902568 16341 solver.cpp:294] Iteration 49000, Testing net (#0)
+I0812 10:55:20.902585 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.902595 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.902603 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.903916 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.904001 16341 solver.cpp:343]     Test net output #1: loss = 0.12713 (* 1 = 0.12713 loss)
+I0812 10:55:20.904047 16341 solver.cpp:214] Iteration 49000, loss = 0.10715
+I0812 10:55:20.904067 16341 solver.cpp:229]     Train net output #0: loss = 0.10715 (* 1 = 0.10715 loss)
+I0812 10:55:20.904083 16341 solver.cpp:486] Iteration 49000, lr = 0.001
+I0812 10:55:20.909277 16341 solver.cpp:214] Iteration 49500, loss = 0.106624
+I0812 10:55:20.909319 16341 solver.cpp:229]     Train net output #0: loss = 0.106624 (* 1 = 0.106624 loss)
+I0812 10:55:20.909330 16341 solver.cpp:486] Iteration 49500, lr = 0.001
+I0812 10:55:20.914619 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.914665 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_50000.caffemodel
+I0812 10:55:20.914839 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_50000.solverstate
+I0812 10:55:20.914959 16341 solver.cpp:294] Iteration 50000, Testing net (#0)
+I0812 10:55:20.914985 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.914995 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.915005 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.916252 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.916282 16341 solver.cpp:343]     Test net output #1: loss = 0.127487 (* 1 = 0.127487 loss)
+I0812 10:55:20.916311 16341 solver.cpp:214] Iteration 50000, loss = 0.106108
+I0812 10:55:20.916327 16341 solver.cpp:229]     Train net output #0: loss = 0.106108 (* 1 = 0.106108 loss)
+I0812 10:55:20.916338 16341 solver.cpp:486] Iteration 50000, lr = 0.0001
+I0812 10:55:20.921563 16341 solver.cpp:214] Iteration 50500, loss = 0.105996
+I0812 10:55:20.921600 16341 solver.cpp:229]     Train net output #0: loss = 0.105996 (* 1 = 0.105996 loss)
+I0812 10:55:20.921612 16341 solver.cpp:486] Iteration 50500, lr = 0.0001
+I0812 10:55:20.926791 16341 solver.cpp:294] Iteration 51000, Testing net (#0)
+I0812 10:55:20.926816 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.926826 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.926836 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.928108 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.928138 16341 solver.cpp:343]     Test net output #1: loss = 0.127476 (* 1 = 0.127476 loss)
+I0812 10:55:20.928184 16341 solver.cpp:214] Iteration 51000, loss = 0.105946
+I0812 10:55:20.928199 16341 solver.cpp:229]     Train net output #0: loss = 0.105946 (* 1 = 0.105946 loss)
+I0812 10:55:20.928210 16341 solver.cpp:486] Iteration 51000, lr = 0.0001
+I0812 10:55:20.933480 16341 solver.cpp:214] Iteration 51500, loss = 0.105896
+I0812 10:55:20.933506 16341 solver.cpp:229]     Train net output #0: loss = 0.105896 (* 1 = 0.105896 loss)
+I0812 10:55:20.933516 16341 solver.cpp:486] Iteration 51500, lr = 0.0001
+I0812 10:55:20.938583 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.938627 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_52000.caffemodel
+I0812 10:55:20.938805 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_52000.solverstate
+I0812 10:55:20.938953 16341 solver.cpp:294] Iteration 52000, Testing net (#0)
+I0812 10:55:20.938977 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.938987 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.938997 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.940271 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.940320 16341 solver.cpp:343]     Test net output #1: loss = 0.126083 (* 1 = 0.126083 loss)
+I0812 10:55:20.940356 16341 solver.cpp:214] Iteration 52000, loss = 0.105846
+I0812 10:55:20.940371 16341 solver.cpp:229]     Train net output #0: loss = 0.105846 (* 1 = 0.105846 loss)
+I0812 10:55:20.940381 16341 solver.cpp:486] Iteration 52000, lr = 0.0001
+I0812 10:55:20.945588 16341 solver.cpp:214] Iteration 52500, loss = 0.105796
+I0812 10:55:20.945621 16341 solver.cpp:229]     Train net output #0: loss = 0.105796 (* 1 = 0.105796 loss)
+I0812 10:55:20.945631 16341 solver.cpp:486] Iteration 52500, lr = 0.0001
+I0812 10:55:20.950722 16341 solver.cpp:294] Iteration 53000, Testing net (#0)
+I0812 10:55:20.950738 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.950745 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.950754 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.952023 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.952062 16341 solver.cpp:343]     Test net output #1: loss = 0.127223 (* 1 = 0.127223 loss)
+I0812 10:55:20.952086 16341 solver.cpp:214] Iteration 53000, loss = 0.105746
+I0812 10:55:20.952121 16341 solver.cpp:229]     Train net output #0: loss = 0.105746 (* 1 = 0.105746 loss)
+I0812 10:55:20.952131 16341 solver.cpp:486] Iteration 53000, lr = 0.0001
+I0812 10:55:20.957345 16341 solver.cpp:214] Iteration 53500, loss = 0.105697
+I0812 10:55:20.957378 16341 solver.cpp:229]     Train net output #0: loss = 0.105697 (* 1 = 0.105697 loss)
+I0812 10:55:20.957389 16341 solver.cpp:486] Iteration 53500, lr = 0.0001
+I0812 10:55:20.962532 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.962615 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_54000.caffemodel
+I0812 10:55:20.962831 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_54000.solverstate
+I0812 10:55:20.962966 16341 solver.cpp:294] Iteration 54000, Testing net (#0)
+I0812 10:55:20.962991 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.963011 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.963031 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.964306 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.964337 16341 solver.cpp:343]     Test net output #1: loss = 0.127214 (* 1 = 0.127214 loss)
+I0812 10:55:20.964365 16341 solver.cpp:214] Iteration 54000, loss = 0.105647
+I0812 10:55:20.964380 16341 solver.cpp:229]     Train net output #0: loss = 0.105647 (* 1 = 0.105647 loss)
+I0812 10:55:20.964392 16341 solver.cpp:486] Iteration 54000, lr = 0.0001
+I0812 10:55:20.969542 16341 solver.cpp:214] Iteration 54500, loss = 0.105597
+I0812 10:55:20.969583 16341 solver.cpp:229]     Train net output #0: loss = 0.105597 (* 1 = 0.105597 loss)
+I0812 10:55:20.969594 16341 solver.cpp:486] Iteration 54500, lr = 0.0001
+I0812 10:55:20.974774 16341 solver.cpp:294] Iteration 55000, Testing net (#0)
+I0812 10:55:20.974797 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.974807 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.974815 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.976043 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.976068 16341 solver.cpp:343]     Test net output #1: loss = 0.125824 (* 1 = 0.125824 loss)
+I0812 10:55:20.976094 16341 solver.cpp:214] Iteration 55000, loss = 0.105548
+I0812 10:55:20.976109 16341 solver.cpp:229]     Train net output #0: loss = 0.105548 (* 1 = 0.105548 loss)
+I0812 10:55:20.976119 16341 solver.cpp:486] Iteration 55000, lr = 0.0001
+I0812 10:55:20.981209 16341 solver.cpp:214] Iteration 55500, loss = 0.105498
+I0812 10:55:20.981232 16341 solver.cpp:229]     Train net output #0: loss = 0.105498 (* 1 = 0.105498 loss)
+I0812 10:55:20.981242 16341 solver.cpp:486] Iteration 55500, lr = 0.0001
+I0812 10:55:20.986243 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:20.986281 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_56000.caffemodel
+I0812 10:55:20.986491 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_56000.solverstate
+I0812 10:55:20.986647 16341 solver.cpp:294] Iteration 56000, Testing net (#0)
+I0812 10:55:20.986682 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.986690 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.986699 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.988065 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.988103 16341 solver.cpp:343]     Test net output #1: loss = 0.126966 (* 1 = 0.126966 loss)
+I0812 10:55:20.988131 16341 solver.cpp:214] Iteration 56000, loss = 0.105448
+I0812 10:55:20.988147 16341 solver.cpp:229]     Train net output #0: loss = 0.105448 (* 1 = 0.105448 loss)
+I0812 10:55:20.988158 16341 solver.cpp:486] Iteration 56000, lr = 0.0001
+I0812 10:55:20.993263 16341 solver.cpp:214] Iteration 56500, loss = 0.105398
+I0812 10:55:20.993293 16341 solver.cpp:229]     Train net output #0: loss = 0.105398 (* 1 = 0.105398 loss)
+I0812 10:55:20.993302 16341 solver.cpp:486] Iteration 56500, lr = 0.0001
+I0812 10:55:20.998394 16341 solver.cpp:294] Iteration 57000, Testing net (#0)
+I0812 10:55:20.998412 16341 net.cpp:671] Copying source layer data
+I0812 10:55:20.998422 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:20.998431 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:20.999660 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:20.999712 16341 solver.cpp:343]     Test net output #1: loss = 0.126956 (* 1 = 0.126956 loss)
+I0812 10:55:20.999758 16341 solver.cpp:214] Iteration 57000, loss = 0.105348
+I0812 10:55:20.999794 16341 solver.cpp:229]     Train net output #0: loss = 0.105348 (* 1 = 0.105348 loss)
+I0812 10:55:20.999814 16341 solver.cpp:486] Iteration 57000, lr = 0.0001
+I0812 10:55:21.005038 16341 solver.cpp:214] Iteration 57500, loss = 0.105298
+I0812 10:55:21.005072 16341 solver.cpp:229]     Train net output #0: loss = 0.105298 (* 1 = 0.105298 loss)
+I0812 10:55:21.005082 16341 solver.cpp:486] Iteration 57500, lr = 0.0001
+I0812 10:55:21.010098 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.010134 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_58000.caffemodel
+I0812 10:55:21.010337 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_58000.solverstate
+I0812 10:55:21.010476 16341 solver.cpp:294] Iteration 58000, Testing net (#0)
+I0812 10:55:21.010524 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.010534 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.010542 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.011829 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.011862 16341 solver.cpp:343]     Test net output #1: loss = 0.125568 (* 1 = 0.125568 loss)
+I0812 10:55:21.011907 16341 solver.cpp:214] Iteration 58000, loss = 0.105249
+I0812 10:55:21.011942 16341 solver.cpp:229]     Train net output #0: loss = 0.105249 (* 1 = 0.105249 loss)
+I0812 10:55:21.011953 16341 solver.cpp:486] Iteration 58000, lr = 0.0001
+I0812 10:55:21.017076 16341 solver.cpp:214] Iteration 58500, loss = 0.105199
+I0812 10:55:21.017099 16341 solver.cpp:229]     Train net output #0: loss = 0.105199 (* 1 = 0.105199 loss)
+I0812 10:55:21.017109 16341 solver.cpp:486] Iteration 58500, lr = 0.0001
+I0812 10:55:21.022284 16341 solver.cpp:294] Iteration 59000, Testing net (#0)
+I0812 10:55:21.022303 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.022311 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.022320 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.023552 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.023617 16341 solver.cpp:343]     Test net output #1: loss = 0.126712 (* 1 = 0.126712 loss)
+I0812 10:55:21.023651 16341 solver.cpp:214] Iteration 59000, loss = 0.10515
+I0812 10:55:21.023687 16341 solver.cpp:229]     Train net output #0: loss = 0.10515 (* 1 = 0.10515 loss)
+I0812 10:55:21.023710 16341 solver.cpp:486] Iteration 59000, lr = 0.0001
+I0812 10:55:21.028924 16341 solver.cpp:214] Iteration 59500, loss = 0.1051
+I0812 10:55:21.028949 16341 solver.cpp:229]     Train net output #0: loss = 0.1051 (* 1 = 0.1051 loss)
+I0812 10:55:21.028960 16341 solver.cpp:486] Iteration 59500, lr = 0.0001
+I0812 10:55:21.034093 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.034128 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_60000.caffemodel
+I0812 10:55:21.034317 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_60000.solverstate
+I0812 10:55:21.034435 16341 solver.cpp:294] Iteration 60000, Testing net (#0)
+I0812 10:55:21.034471 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.034481 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.034489 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.035801 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.035830 16341 solver.cpp:343]     Test net output #1: loss = 0.126701 (* 1 = 0.126701 loss)
+I0812 10:55:21.035856 16341 solver.cpp:214] Iteration 60000, loss = 0.10505
+I0812 10:55:21.035872 16341 solver.cpp:229]     Train net output #0: loss = 0.10505 (* 1 = 0.10505 loss)
+I0812 10:55:21.035883 16341 solver.cpp:486] Iteration 60000, lr = 0.0001
+I0812 10:55:21.041049 16341 solver.cpp:214] Iteration 60500, loss = 0.105001
+I0812 10:55:21.041079 16341 solver.cpp:229]     Train net output #0: loss = 0.105001 (* 1 = 0.105001 loss)
+I0812 10:55:21.041091 16341 solver.cpp:486] Iteration 60500, lr = 0.0001
+I0812 10:55:21.046324 16341 solver.cpp:294] Iteration 61000, Testing net (#0)
+I0812 10:55:21.046355 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.046362 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.046371 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.047591 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.047616 16341 solver.cpp:343]     Test net output #1: loss = 0.125316 (* 1 = 0.125316 loss)
+I0812 10:55:21.047641 16341 solver.cpp:214] Iteration 61000, loss = 0.104952
+I0812 10:55:21.047655 16341 solver.cpp:229]     Train net output #0: loss = 0.104952 (* 1 = 0.104952 loss)
+I0812 10:55:21.047665 16341 solver.cpp:486] Iteration 61000, lr = 0.0001
+I0812 10:55:21.052791 16341 solver.cpp:214] Iteration 61500, loss = 0.104903
+I0812 10:55:21.052819 16341 solver.cpp:229]     Train net output #0: loss = 0.104903 (* 1 = 0.104903 loss)
+I0812 10:55:21.052829 16341 solver.cpp:486] Iteration 61500, lr = 0.0001
+I0812 10:55:21.057984 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.058053 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_62000.caffemodel
+I0812 10:55:21.058275 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_62000.solverstate
+I0812 10:55:21.058404 16341 solver.cpp:294] Iteration 62000, Testing net (#0)
+I0812 10:55:21.058429 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.058437 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.058447 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.059717 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.059751 16341 solver.cpp:343]     Test net output #1: loss = 0.126461 (* 1 = 0.126461 loss)
+I0812 10:55:21.059775 16341 solver.cpp:214] Iteration 62000, loss = 0.104854
+I0812 10:55:21.059790 16341 solver.cpp:229]     Train net output #0: loss = 0.104854 (* 1 = 0.104854 loss)
+I0812 10:55:21.059810 16341 solver.cpp:486] Iteration 62000, lr = 0.0001
+I0812 10:55:21.065003 16341 solver.cpp:214] Iteration 62500, loss = 0.104805
+I0812 10:55:21.065029 16341 solver.cpp:229]     Train net output #0: loss = 0.104805 (* 1 = 0.104805 loss)
+I0812 10:55:21.065040 16341 solver.cpp:486] Iteration 62500, lr = 0.0001
+I0812 10:55:21.070176 16341 solver.cpp:294] Iteration 63000, Testing net (#0)
+I0812 10:55:21.070255 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.070264 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.070288 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.071661 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.071686 16341 solver.cpp:343]     Test net output #1: loss = 0.12645 (* 1 = 0.12645 loss)
+I0812 10:55:21.071710 16341 solver.cpp:214] Iteration 63000, loss = 0.104756
+I0812 10:55:21.071725 16341 solver.cpp:229]     Train net output #0: loss = 0.104756 (* 1 = 0.104756 loss)
+I0812 10:55:21.071735 16341 solver.cpp:486] Iteration 63000, lr = 0.0001
+I0812 10:55:21.076962 16341 solver.cpp:214] Iteration 63500, loss = 0.104707
+I0812 10:55:21.076987 16341 solver.cpp:229]     Train net output #0: loss = 0.104707 (* 1 = 0.104707 loss)
+I0812 10:55:21.076998 16341 solver.cpp:486] Iteration 63500, lr = 0.0001
+I0812 10:55:21.082007 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.082042 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_64000.caffemodel
+I0812 10:55:21.082285 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_64000.solverstate
+I0812 10:55:21.082435 16341 solver.cpp:294] Iteration 64000, Testing net (#0)
+I0812 10:55:21.082460 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.082469 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.082479 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.083763 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.083796 16341 solver.cpp:343]     Test net output #1: loss = 0.125067 (* 1 = 0.125067 loss)
+I0812 10:55:21.083822 16341 solver.cpp:214] Iteration 64000, loss = 0.104658
+I0812 10:55:21.083858 16341 solver.cpp:229]     Train net output #0: loss = 0.104658 (* 1 = 0.104658 loss)
+I0812 10:55:21.083869 16341 solver.cpp:486] Iteration 64000, lr = 0.0001
+I0812 10:55:21.089048 16341 solver.cpp:214] Iteration 64500, loss = 0.104608
+I0812 10:55:21.089082 16341 solver.cpp:229]     Train net output #0: loss = 0.104608 (* 1 = 0.104608 loss)
+I0812 10:55:21.089093 16341 solver.cpp:486] Iteration 64500, lr = 0.0001
+I0812 10:55:21.094179 16341 solver.cpp:294] Iteration 65000, Testing net (#0)
+I0812 10:55:21.094198 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.094207 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.094215 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.095471 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.095515 16341 solver.cpp:343]     Test net output #1: loss = 0.126214 (* 1 = 0.126214 loss)
+I0812 10:55:21.095549 16341 solver.cpp:214] Iteration 65000, loss = 0.104559
+I0812 10:55:21.095576 16341 solver.cpp:229]     Train net output #0: loss = 0.104559 (* 1 = 0.104559 loss)
+I0812 10:55:21.095597 16341 solver.cpp:486] Iteration 65000, lr = 0.0001
+I0812 10:55:21.100728 16341 solver.cpp:214] Iteration 65500, loss = 0.104509
+I0812 10:55:21.100752 16341 solver.cpp:229]     Train net output #0: loss = 0.104509 (* 1 = 0.104509 loss)
+I0812 10:55:21.100762 16341 solver.cpp:486] Iteration 65500, lr = 0.0001
+I0812 10:55:21.105890 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.105934 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_66000.caffemodel
+I0812 10:55:21.106132 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_66000.solverstate
+I0812 10:55:21.106257 16341 solver.cpp:294] Iteration 66000, Testing net (#0)
+I0812 10:55:21.106281 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.106300 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.106312 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.107586 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.107619 16341 solver.cpp:343]     Test net output #1: loss = 0.126201 (* 1 = 0.126201 loss)
+I0812 10:55:21.107641 16341 solver.cpp:214] Iteration 66000, loss = 0.10446
+I0812 10:55:21.107657 16341 solver.cpp:229]     Train net output #0: loss = 0.10446 (* 1 = 0.10446 loss)
+I0812 10:55:21.107667 16341 solver.cpp:486] Iteration 66000, lr = 0.0001
+I0812 10:55:21.112833 16341 solver.cpp:214] Iteration 66500, loss = 0.104411
+I0812 10:55:21.112876 16341 solver.cpp:229]     Train net output #0: loss = 0.104411 (* 1 = 0.104411 loss)
+I0812 10:55:21.112897 16341 solver.cpp:486] Iteration 66500, lr = 0.0001
+I0812 10:55:21.118024 16341 solver.cpp:294] Iteration 67000, Testing net (#0)
+I0812 10:55:21.118041 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.118062 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.118072 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.119432 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.119480 16341 solver.cpp:343]     Test net output #1: loss = 0.12482 (* 1 = 0.12482 loss)
+I0812 10:55:21.119526 16341 solver.cpp:214] Iteration 67000, loss = 0.104362
+I0812 10:55:21.119570 16341 solver.cpp:229]     Train net output #0: loss = 0.104362 (* 1 = 0.104362 loss)
+I0812 10:55:21.119582 16341 solver.cpp:486] Iteration 67000, lr = 0.0001
+I0812 10:55:21.124773 16341 solver.cpp:214] Iteration 67500, loss = 0.104313
+I0812 10:55:21.124804 16341 solver.cpp:229]     Train net output #0: loss = 0.104313 (* 1 = 0.104313 loss)
+I0812 10:55:21.124814 16341 solver.cpp:486] Iteration 67500, lr = 0.0001
+I0812 10:55:21.129990 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.130028 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_68000.caffemodel
+I0812 10:55:21.130287 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_68000.solverstate
+I0812 10:55:21.130460 16341 solver.cpp:294] Iteration 68000, Testing net (#0)
+I0812 10:55:21.130482 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.130491 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.130501 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.131774 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.131798 16341 solver.cpp:343]     Test net output #1: loss = 0.12597 (* 1 = 0.12597 loss)
+I0812 10:55:21.131824 16341 solver.cpp:214] Iteration 68000, loss = 0.104264
+I0812 10:55:21.131839 16341 solver.cpp:229]     Train net output #0: loss = 0.104264 (* 1 = 0.104264 loss)
+I0812 10:55:21.131849 16341 solver.cpp:486] Iteration 68000, lr = 0.0001
+I0812 10:55:21.137037 16341 solver.cpp:214] Iteration 68500, loss = 0.104215
+I0812 10:55:21.137132 16341 solver.cpp:229]     Train net output #0: loss = 0.104215 (* 1 = 0.104215 loss)
+I0812 10:55:21.137147 16341 solver.cpp:486] Iteration 68500, lr = 0.0001
+I0812 10:55:21.142395 16341 solver.cpp:294] Iteration 69000, Testing net (#0)
+I0812 10:55:21.142426 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.142444 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.142457 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.143678 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.143703 16341 solver.cpp:343]     Test net output #1: loss = 0.125956 (* 1 = 0.125956 loss)
+I0812 10:55:21.143728 16341 solver.cpp:214] Iteration 69000, loss = 0.104166
+I0812 10:55:21.143744 16341 solver.cpp:229]     Train net output #0: loss = 0.104166 (* 1 = 0.104166 loss)
+I0812 10:55:21.143755 16341 solver.cpp:486] Iteration 69000, lr = 0.0001
+I0812 10:55:21.148866 16341 solver.cpp:214] Iteration 69500, loss = 0.104117
+I0812 10:55:21.148897 16341 solver.cpp:229]     Train net output #0: loss = 0.104117 (* 1 = 0.104117 loss)
+I0812 10:55:21.148907 16341 solver.cpp:486] Iteration 69500, lr = 0.0001
+I0812 10:55:21.154091 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.154225 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_70000.caffemodel
+I0812 10:55:21.154651 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_70000.solverstate
+I0812 10:55:21.154804 16341 solver.cpp:294] Iteration 70000, Testing net (#0)
+I0812 10:55:21.154829 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.154849 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.154868 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.156111 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.156183 16341 solver.cpp:343]     Test net output #1: loss = 0.124579 (* 1 = 0.124579 loss)
+I0812 10:55:21.156210 16341 solver.cpp:214] Iteration 70000, loss = 0.104069
+I0812 10:55:21.156225 16341 solver.cpp:229]     Train net output #0: loss = 0.104069 (* 1 = 0.104069 loss)
+I0812 10:55:21.156237 16341 solver.cpp:486] Iteration 70000, lr = 0.0001
+I0812 10:55:21.161430 16341 solver.cpp:214] Iteration 70500, loss = 0.10402
+I0812 10:55:21.161475 16341 solver.cpp:229]     Train net output #0: loss = 0.10402 (* 1 = 0.10402 loss)
+I0812 10:55:21.161487 16341 solver.cpp:486] Iteration 70500, lr = 0.0001
+I0812 10:55:21.166580 16341 solver.cpp:294] Iteration 71000, Testing net (#0)
+I0812 10:55:21.166594 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.166602 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.166611 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.167966 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.168020 16341 solver.cpp:343]     Test net output #1: loss = 0.125731 (* 1 = 0.125731 loss)
+I0812 10:55:21.168042 16341 solver.cpp:214] Iteration 71000, loss = 0.103973
+I0812 10:55:21.168077 16341 solver.cpp:229]     Train net output #0: loss = 0.103973 (* 1 = 0.103973 loss)
+I0812 10:55:21.168088 16341 solver.cpp:486] Iteration 71000, lr = 0.0001
+I0812 10:55:21.173265 16341 solver.cpp:214] Iteration 71500, loss = 0.103926
+I0812 10:55:21.173298 16341 solver.cpp:229]     Train net output #0: loss = 0.103926 (* 1 = 0.103926 loss)
+I0812 10:55:21.173310 16341 solver.cpp:486] Iteration 71500, lr = 0.0001
+I0812 10:55:21.178364 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.178410 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_72000.caffemodel
+I0812 10:55:21.178644 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_72000.solverstate
+I0812 10:55:21.178786 16341 solver.cpp:294] Iteration 72000, Testing net (#0)
+I0812 10:55:21.178820 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.178840 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.178851 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.180079 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.180100 16341 solver.cpp:343]     Test net output #1: loss = 0.125717 (* 1 = 0.125717 loss)
+I0812 10:55:21.180124 16341 solver.cpp:214] Iteration 72000, loss = 0.103879
+I0812 10:55:21.180140 16341 solver.cpp:229]     Train net output #0: loss = 0.103879 (* 1 = 0.103879 loss)
+I0812 10:55:21.180151 16341 solver.cpp:486] Iteration 72000, lr = 0.0001
+I0812 10:55:21.185400 16341 solver.cpp:214] Iteration 72500, loss = 0.103832
+I0812 10:55:21.185456 16341 solver.cpp:229]     Train net output #0: loss = 0.103832 (* 1 = 0.103832 loss)
+I0812 10:55:21.185467 16341 solver.cpp:486] Iteration 72500, lr = 0.0001
+I0812 10:55:21.190654 16341 solver.cpp:294] Iteration 73000, Testing net (#0)
+I0812 10:55:21.190675 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.190685 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.190693 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.191994 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.192029 16341 solver.cpp:343]     Test net output #1: loss = 0.124341 (* 1 = 0.124341 loss)
+I0812 10:55:21.192064 16341 solver.cpp:214] Iteration 73000, loss = 0.103784
+I0812 10:55:21.192097 16341 solver.cpp:229]     Train net output #0: loss = 0.103784 (* 1 = 0.103784 loss)
+I0812 10:55:21.192118 16341 solver.cpp:486] Iteration 73000, lr = 0.0001
+I0812 10:55:21.197338 16341 solver.cpp:214] Iteration 73500, loss = 0.103737
+I0812 10:55:21.197371 16341 solver.cpp:229]     Train net output #0: loss = 0.103737 (* 1 = 0.103737 loss)
+I0812 10:55:21.197382 16341 solver.cpp:486] Iteration 73500, lr = 0.0001
+I0812 10:55:21.202502 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.202541 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_74000.caffemodel
+I0812 10:55:21.202709 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_74000.solverstate
+I0812 10:55:21.202841 16341 solver.cpp:294] Iteration 74000, Testing net (#0)
+I0812 10:55:21.202865 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.202874 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.202884 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.204147 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.204208 16341 solver.cpp:343]     Test net output #1: loss = 0.125495 (* 1 = 0.125495 loss)
+I0812 10:55:21.204246 16341 solver.cpp:214] Iteration 74000, loss = 0.10369
+I0812 10:55:21.204265 16341 solver.cpp:229]     Train net output #0: loss = 0.10369 (* 1 = 0.10369 loss)
+I0812 10:55:21.204282 16341 solver.cpp:486] Iteration 74000, lr = 0.0001
+I0812 10:55:21.209435 16341 solver.cpp:214] Iteration 74500, loss = 0.103643
+I0812 10:55:21.209463 16341 solver.cpp:229]     Train net output #0: loss = 0.103643 (* 1 = 0.103643 loss)
+I0812 10:55:21.209473 16341 solver.cpp:486] Iteration 74500, lr = 0.0001
+I0812 10:55:21.214584 16341 solver.cpp:294] Iteration 75000, Testing net (#0)
+I0812 10:55:21.214598 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.214607 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.214614 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.215880 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.215909 16341 solver.cpp:343]     Test net output #1: loss = 0.125479 (* 1 = 0.125479 loss)
+I0812 10:55:21.215944 16341 solver.cpp:214] Iteration 75000, loss = 0.103596
+I0812 10:55:21.215978 16341 solver.cpp:229]     Train net output #0: loss = 0.103596 (* 1 = 0.103596 loss)
+I0812 10:55:21.216001 16341 solver.cpp:486] Iteration 75000, lr = 0.0001
+I0812 10:55:21.221211 16341 solver.cpp:214] Iteration 75500, loss = 0.103549
+I0812 10:55:21.221245 16341 solver.cpp:229]     Train net output #0: loss = 0.103549 (* 1 = 0.103549 loss)
+I0812 10:55:21.221254 16341 solver.cpp:486] Iteration 75500, lr = 0.0001
+I0812 10:55:21.226414 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.226460 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_76000.caffemodel
+I0812 10:55:21.226699 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_76000.solverstate
+I0812 10:55:21.226829 16341 solver.cpp:294] Iteration 76000, Testing net (#0)
+I0812 10:55:21.226863 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.226873 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.226882 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.228147 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.228181 16341 solver.cpp:343]     Test net output #1: loss = 0.124105 (* 1 = 0.124105 loss)
+I0812 10:55:21.228227 16341 solver.cpp:214] Iteration 76000, loss = 0.103502
+I0812 10:55:21.228242 16341 solver.cpp:229]     Train net output #0: loss = 0.103502 (* 1 = 0.103502 loss)
+I0812 10:55:21.228255 16341 solver.cpp:486] Iteration 76000, lr = 0.0001
+I0812 10:55:21.233363 16341 solver.cpp:214] Iteration 76500, loss = 0.103455
+I0812 10:55:21.233386 16341 solver.cpp:229]     Train net output #0: loss = 0.103455 (* 1 = 0.103455 loss)
+I0812 10:55:21.233397 16341 solver.cpp:486] Iteration 76500, lr = 0.0001
+I0812 10:55:21.238584 16341 solver.cpp:294] Iteration 77000, Testing net (#0)
+I0812 10:55:21.238606 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.238615 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.238623 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.239837 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.239861 16341 solver.cpp:343]     Test net output #1: loss = 0.125261 (* 1 = 0.125261 loss)
+I0812 10:55:21.239884 16341 solver.cpp:214] Iteration 77000, loss = 0.103407
+I0812 10:55:21.239899 16341 solver.cpp:229]     Train net output #0: loss = 0.103407 (* 1 = 0.103407 loss)
+I0812 10:55:21.239912 16341 solver.cpp:486] Iteration 77000, lr = 0.0001
+I0812 10:55:21.245136 16341 solver.cpp:214] Iteration 77500, loss = 0.10336
+I0812 10:55:21.245169 16341 solver.cpp:229]     Train net output #0: loss = 0.10336 (* 1 = 0.10336 loss)
+I0812 10:55:21.245179 16341 solver.cpp:486] Iteration 77500, lr = 0.0001
+I0812 10:55:21.250401 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.250463 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_78000.caffemodel
+I0812 10:55:21.250668 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_78000.solverstate
+I0812 10:55:21.250789 16341 solver.cpp:294] Iteration 78000, Testing net (#0)
+I0812 10:55:21.250813 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.250824 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.250834 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.252059 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.252084 16341 solver.cpp:343]     Test net output #1: loss = 0.125244 (* 1 = 0.125244 loss)
+I0812 10:55:21.252110 16341 solver.cpp:214] Iteration 78000, loss = 0.103313
+I0812 10:55:21.252125 16341 solver.cpp:229]     Train net output #0: loss = 0.103313 (* 1 = 0.103313 loss)
+I0812 10:55:21.252136 16341 solver.cpp:486] Iteration 78000, lr = 0.0001
+I0812 10:55:21.257290 16341 solver.cpp:214] Iteration 78500, loss = 0.103266
+I0812 10:55:21.257323 16341 solver.cpp:229]     Train net output #0: loss = 0.103266 (* 1 = 0.103266 loss)
+I0812 10:55:21.257344 16341 solver.cpp:486] Iteration 78500, lr = 0.0001
+I0812 10:55:21.262578 16341 solver.cpp:294] Iteration 79000, Testing net (#0)
+I0812 10:55:21.262603 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.262610 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.262619 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.263926 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.263963 16341 solver.cpp:343]     Test net output #1: loss = 0.123872 (* 1 = 0.123872 loss)
+I0812 10:55:21.264009 16341 solver.cpp:214] Iteration 79000, loss = 0.10322
+I0812 10:55:21.264045 16341 solver.cpp:229]     Train net output #0: loss = 0.10322 (* 1 = 0.10322 loss)
+I0812 10:55:21.264056 16341 solver.cpp:486] Iteration 79000, lr = 0.0001
+I0812 10:55:21.269237 16341 solver.cpp:214] Iteration 79500, loss = 0.103174
+I0812 10:55:21.269264 16341 solver.cpp:229]     Train net output #0: loss = 0.103174 (* 1 = 0.103174 loss)
+I0812 10:55:21.269275 16341 solver.cpp:486] Iteration 79500, lr = 0.0001
+I0812 10:55:21.274399 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.274451 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_80000.caffemodel
+I0812 10:55:21.274705 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_80000.solverstate
+I0812 10:55:21.274842 16341 solver.cpp:294] Iteration 80000, Testing net (#0)
+I0812 10:55:21.274866 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.274886 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.274896 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.276129 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.276152 16341 solver.cpp:343]     Test net output #1: loss = 0.125029 (* 1 = 0.125029 loss)
+I0812 10:55:21.276177 16341 solver.cpp:214] Iteration 80000, loss = 0.103128
+I0812 10:55:21.276193 16341 solver.cpp:229]     Train net output #0: loss = 0.103128 (* 1 = 0.103128 loss)
+I0812 10:55:21.276206 16341 solver.cpp:486] Iteration 80000, lr = 0.0001
+I0812 10:55:21.281467 16341 solver.cpp:214] Iteration 80500, loss = 0.103081
+I0812 10:55:21.281491 16341 solver.cpp:229]     Train net output #0: loss = 0.103081 (* 1 = 0.103081 loss)
+I0812 10:55:21.281502 16341 solver.cpp:486] Iteration 80500, lr = 0.0001
+I0812 10:55:21.286635 16341 solver.cpp:294] Iteration 81000, Testing net (#0)
+I0812 10:55:21.286671 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.286680 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.286691 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.287950 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.287978 16341 solver.cpp:343]     Test net output #1: loss = 0.125011 (* 1 = 0.125011 loss)
+I0812 10:55:21.288007 16341 solver.cpp:214] Iteration 81000, loss = 0.103035
+I0812 10:55:21.288023 16341 solver.cpp:229]     Train net output #0: loss = 0.103035 (* 1 = 0.103035 loss)
+I0812 10:55:21.288035 16341 solver.cpp:486] Iteration 81000, lr = 0.0001
+I0812 10:55:21.293505 16341 solver.cpp:214] Iteration 81500, loss = 0.102989
+I0812 10:55:21.293550 16341 solver.cpp:229]     Train net output #0: loss = 0.102989 (* 1 = 0.102989 loss)
+I0812 10:55:21.293562 16341 solver.cpp:486] Iteration 81500, lr = 0.0001
+I0812 10:55:21.298674 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.298743 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_82000.caffemodel
+I0812 10:55:21.298943 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_82000.solverstate
+I0812 10:55:21.299085 16341 solver.cpp:294] Iteration 82000, Testing net (#0)
+I0812 10:55:21.299110 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.299121 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.299130 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.300380 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.300405 16341 solver.cpp:343]     Test net output #1: loss = 0.123642 (* 1 = 0.123642 loss)
+I0812 10:55:21.300432 16341 solver.cpp:214] Iteration 82000, loss = 0.102944
+I0812 10:55:21.300447 16341 solver.cpp:229]     Train net output #0: loss = 0.102944 (* 1 = 0.102944 loss)
+I0812 10:55:21.300458 16341 solver.cpp:486] Iteration 82000, lr = 0.0001
+I0812 10:55:21.305779 16341 solver.cpp:214] Iteration 82500, loss = 0.102898
+I0812 10:55:21.305825 16341 solver.cpp:229]     Train net output #0: loss = 0.102898 (* 1 = 0.102898 loss)
+I0812 10:55:21.305836 16341 solver.cpp:486] Iteration 82500, lr = 0.0001
+I0812 10:55:21.311051 16341 solver.cpp:294] Iteration 83000, Testing net (#0)
+I0812 10:55:21.311066 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.311085 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.311095 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.312423 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.312445 16341 solver.cpp:343]     Test net output #1: loss = 0.124802 (* 1 = 0.124802 loss)
+I0812 10:55:21.312469 16341 solver.cpp:214] Iteration 83000, loss = 0.102852
+I0812 10:55:21.312504 16341 solver.cpp:229]     Train net output #0: loss = 0.102852 (* 1 = 0.102852 loss)
+I0812 10:55:21.312513 16341 solver.cpp:486] Iteration 83000, lr = 0.0001
+I0812 10:55:21.317654 16341 solver.cpp:214] Iteration 83500, loss = 0.102807
+I0812 10:55:21.317682 16341 solver.cpp:229]     Train net output #0: loss = 0.102807 (* 1 = 0.102807 loss)
+I0812 10:55:21.317692 16341 solver.cpp:486] Iteration 83500, lr = 0.0001
+I0812 10:55:21.322779 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.322821 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_84000.caffemodel
+I0812 10:55:21.322988 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_84000.solverstate
+I0812 10:55:21.323124 16341 solver.cpp:294] Iteration 84000, Testing net (#0)
+I0812 10:55:21.323148 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.323158 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.323166 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.324523 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.324547 16341 solver.cpp:343]     Test net output #1: loss = 0.124783 (* 1 = 0.124783 loss)
+I0812 10:55:21.324590 16341 solver.cpp:214] Iteration 84000, loss = 0.102762
+I0812 10:55:21.324615 16341 solver.cpp:229]     Train net output #0: loss = 0.102762 (* 1 = 0.102762 loss)
+I0812 10:55:21.324625 16341 solver.cpp:486] Iteration 84000, lr = 0.0001
+I0812 10:55:21.329771 16341 solver.cpp:214] Iteration 84500, loss = 0.102717
+I0812 10:55:21.329816 16341 solver.cpp:229]     Train net output #0: loss = 0.102717 (* 1 = 0.102717 loss)
+I0812 10:55:21.329828 16341 solver.cpp:486] Iteration 84500, lr = 0.0001
+I0812 10:55:21.335095 16341 solver.cpp:294] Iteration 85000, Testing net (#0)
+I0812 10:55:21.335114 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.335122 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.335132 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.336347 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.336369 16341 solver.cpp:343]     Test net output #1: loss = 0.123416 (* 1 = 0.123416 loss)
+I0812 10:55:21.336395 16341 solver.cpp:214] Iteration 85000, loss = 0.102672
+I0812 10:55:21.336410 16341 solver.cpp:229]     Train net output #0: loss = 0.102672 (* 1 = 0.102672 loss)
+I0812 10:55:21.336421 16341 solver.cpp:486] Iteration 85000, lr = 0.0001
+I0812 10:55:21.341732 16341 solver.cpp:214] Iteration 85500, loss = 0.102627
+I0812 10:55:21.341763 16341 solver.cpp:229]     Train net output #0: loss = 0.102627 (* 1 = 0.102627 loss)
+I0812 10:55:21.341773 16341 solver.cpp:486] Iteration 85500, lr = 0.0001
+I0812 10:55:21.346984 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.347038 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_86000.caffemodel
+I0812 10:55:21.347234 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_86000.solverstate
+I0812 10:55:21.347386 16341 solver.cpp:294] Iteration 86000, Testing net (#0)
+I0812 10:55:21.347421 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.347431 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.347441 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.348733 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.348765 16341 solver.cpp:343]     Test net output #1: loss = 0.124577 (* 1 = 0.124577 loss)
+I0812 10:55:21.348790 16341 solver.cpp:214] Iteration 86000, loss = 0.102582
+I0812 10:55:21.348815 16341 solver.cpp:229]     Train net output #0: loss = 0.102582 (* 1 = 0.102582 loss)
+I0812 10:55:21.348836 16341 solver.cpp:486] Iteration 86000, lr = 0.0001
+I0812 10:55:21.354012 16341 solver.cpp:214] Iteration 86500, loss = 0.102537
+I0812 10:55:21.354091 16341 solver.cpp:229]     Train net output #0: loss = 0.102537 (* 1 = 0.102537 loss)
+I0812 10:55:21.354104 16341 solver.cpp:486] Iteration 86500, lr = 0.0001
+I0812 10:55:21.359269 16341 solver.cpp:294] Iteration 87000, Testing net (#0)
+I0812 10:55:21.359292 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.359299 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.359318 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.360661 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.360700 16341 solver.cpp:343]     Test net output #1: loss = 0.124557 (* 1 = 0.124557 loss)
+I0812 10:55:21.360728 16341 solver.cpp:214] Iteration 87000, loss = 0.102491
+I0812 10:55:21.360752 16341 solver.cpp:229]     Train net output #0: loss = 0.102491 (* 1 = 0.102491 loss)
+I0812 10:55:21.360764 16341 solver.cpp:486] Iteration 87000, lr = 0.0001
+I0812 10:55:21.365888 16341 solver.cpp:214] Iteration 87500, loss = 0.102446
+I0812 10:55:21.365926 16341 solver.cpp:229]     Train net output #0: loss = 0.102446 (* 1 = 0.102446 loss)
+I0812 10:55:21.365937 16341 solver.cpp:486] Iteration 87500, lr = 0.0001
+I0812 10:55:21.371068 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.371140 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_88000.caffemodel
+I0812 10:55:21.371323 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_88000.solverstate
+I0812 10:55:21.371441 16341 solver.cpp:294] Iteration 88000, Testing net (#0)
+I0812 10:55:21.371465 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.371475 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.371485 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.372784 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.372831 16341 solver.cpp:343]     Test net output #1: loss = 0.123191 (* 1 = 0.123191 loss)
+I0812 10:55:21.372859 16341 solver.cpp:214] Iteration 88000, loss = 0.102401
+I0812 10:55:21.372875 16341 solver.cpp:229]     Train net output #0: loss = 0.102401 (* 1 = 0.102401 loss)
+I0812 10:55:21.372906 16341 solver.cpp:486] Iteration 88000, lr = 0.0001
+I0812 10:55:21.378072 16341 solver.cpp:214] Iteration 88500, loss = 0.102356
+I0812 10:55:21.378096 16341 solver.cpp:229]     Train net output #0: loss = 0.102356 (* 1 = 0.102356 loss)
+I0812 10:55:21.378106 16341 solver.cpp:486] Iteration 88500, lr = 0.0001
+I0812 10:55:21.383272 16341 solver.cpp:294] Iteration 89000, Testing net (#0)
+I0812 10:55:21.383290 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.383297 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.383306 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.384567 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.384598 16341 solver.cpp:343]     Test net output #1: loss = 0.124354 (* 1 = 0.124354 loss)
+I0812 10:55:21.384644 16341 solver.cpp:214] Iteration 89000, loss = 0.102311
+I0812 10:55:21.384690 16341 solver.cpp:229]     Train net output #0: loss = 0.102311 (* 1 = 0.102311 loss)
+I0812 10:55:21.384701 16341 solver.cpp:486] Iteration 89000, lr = 0.0001
+I0812 10:55:21.389909 16341 solver.cpp:214] Iteration 89500, loss = 0.102267
+I0812 10:55:21.389938 16341 solver.cpp:229]     Train net output #0: loss = 0.102267 (* 1 = 0.102267 loss)
+I0812 10:55:21.389948 16341 solver.cpp:486] Iteration 89500, lr = 0.0001
+I0812 10:55:21.395087 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.395126 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_90000.caffemodel
+I0812 10:55:21.395326 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_90000.solverstate
+I0812 10:55:21.395442 16341 solver.cpp:294] Iteration 90000, Testing net (#0)
+I0812 10:55:21.395476 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.395488 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.395506 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.396836 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.396859 16341 solver.cpp:343]     Test net output #1: loss = 0.124333 (* 1 = 0.124333 loss)
+I0812 10:55:21.396895 16341 solver.cpp:214] Iteration 90000, loss = 0.102222
+I0812 10:55:21.396910 16341 solver.cpp:229]     Train net output #0: loss = 0.102222 (* 1 = 0.102222 loss)
+I0812 10:55:21.396921 16341 solver.cpp:486] Iteration 90000, lr = 0.0001
+I0812 10:55:21.402050 16341 solver.cpp:214] Iteration 90500, loss = 0.102177
+I0812 10:55:21.402077 16341 solver.cpp:229]     Train net output #0: loss = 0.102177 (* 1 = 0.102177 loss)
+I0812 10:55:21.402087 16341 solver.cpp:486] Iteration 90500, lr = 0.0001
+I0812 10:55:21.407194 16341 solver.cpp:294] Iteration 91000, Testing net (#0)
+I0812 10:55:21.407213 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.407222 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.407229 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.408522 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.408545 16341 solver.cpp:343]     Test net output #1: loss = 0.122969 (* 1 = 0.122969 loss)
+I0812 10:55:21.408578 16341 solver.cpp:214] Iteration 91000, loss = 0.102133
+I0812 10:55:21.408603 16341 solver.cpp:229]     Train net output #0: loss = 0.102133 (* 1 = 0.102133 loss)
+I0812 10:55:21.408613 16341 solver.cpp:486] Iteration 91000, lr = 0.0001
+I0812 10:55:21.413775 16341 solver.cpp:214] Iteration 91500, loss = 0.102088
+I0812 10:55:21.413797 16341 solver.cpp:229]     Train net output #0: loss = 0.102088 (* 1 = 0.102088 loss)
+I0812 10:55:21.413807 16341 solver.cpp:486] Iteration 91500, lr = 0.0001
+I0812 10:55:21.418838 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.418874 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_92000.caffemodel
+I0812 10:55:21.419095 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_92000.solverstate
+I0812 10:55:21.419210 16341 solver.cpp:294] Iteration 92000, Testing net (#0)
+I0812 10:55:21.419245 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.419265 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.419275 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.420583 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.420637 16341 solver.cpp:343]     Test net output #1: loss = 0.124133 (* 1 = 0.124133 loss)
+I0812 10:55:21.420673 16341 solver.cpp:214] Iteration 92000, loss = 0.102044
+I0812 10:55:21.420691 16341 solver.cpp:229]     Train net output #0: loss = 0.102044 (* 1 = 0.102044 loss)
+I0812 10:55:21.420702 16341 solver.cpp:486] Iteration 92000, lr = 0.0001
+I0812 10:55:21.425802 16341 solver.cpp:214] Iteration 92500, loss = 0.101999
+I0812 10:55:21.425827 16341 solver.cpp:229]     Train net output #0: loss = 0.101999 (* 1 = 0.101999 loss)
+I0812 10:55:21.425837 16341 solver.cpp:486] Iteration 92500, lr = 0.0001
+I0812 10:55:21.430887 16341 solver.cpp:294] Iteration 93000, Testing net (#0)
+I0812 10:55:21.430902 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.430909 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.430917 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.432178 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.432219 16341 solver.cpp:343]     Test net output #1: loss = 0.12411 (* 1 = 0.12411 loss)
+I0812 10:55:21.432242 16341 solver.cpp:214] Iteration 93000, loss = 0.101955
+I0812 10:55:21.432267 16341 solver.cpp:229]     Train net output #0: loss = 0.101955 (* 1 = 0.101955 loss)
+I0812 10:55:21.432277 16341 solver.cpp:486] Iteration 93000, lr = 0.0001
+I0812 10:55:21.437480 16341 solver.cpp:214] Iteration 93500, loss = 0.101911
+I0812 10:55:21.437549 16341 solver.cpp:229]     Train net output #0: loss = 0.101911 (* 1 = 0.101911 loss)
+I0812 10:55:21.437561 16341 solver.cpp:486] Iteration 93500, lr = 0.0001
+I0812 10:55:21.442677 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.442739 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_94000.caffemodel
+I0812 10:55:21.442996 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_94000.solverstate
+I0812 10:55:21.443132 16341 solver.cpp:294] Iteration 94000, Testing net (#0)
+I0812 10:55:21.443167 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.443176 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.443186 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.444422 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.444465 16341 solver.cpp:343]     Test net output #1: loss = 0.122748 (* 1 = 0.122748 loss)
+I0812 10:55:21.444500 16341 solver.cpp:214] Iteration 94000, loss = 0.101867
+I0812 10:55:21.444514 16341 solver.cpp:229]     Train net output #0: loss = 0.101867 (* 1 = 0.101867 loss)
+I0812 10:55:21.444535 16341 solver.cpp:486] Iteration 94000, lr = 0.0001
+I0812 10:55:21.449662 16341 solver.cpp:214] Iteration 94500, loss = 0.101823
+I0812 10:55:21.449704 16341 solver.cpp:229]     Train net output #0: loss = 0.101823 (* 1 = 0.101823 loss)
+I0812 10:55:21.449735 16341 solver.cpp:486] Iteration 94500, lr = 0.0001
+I0812 10:55:21.454953 16341 solver.cpp:294] Iteration 95000, Testing net (#0)
+I0812 10:55:21.454973 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.454982 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.454990 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.456311 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.456356 16341 solver.cpp:343]     Test net output #1: loss = 0.123914 (* 1 = 0.123914 loss)
+I0812 10:55:21.456390 16341 solver.cpp:214] Iteration 95000, loss = 0.101779
+I0812 10:55:21.456415 16341 solver.cpp:229]     Train net output #0: loss = 0.101779 (* 1 = 0.101779 loss)
+I0812 10:55:21.456426 16341 solver.cpp:486] Iteration 95000, lr = 0.0001
+I0812 10:55:21.461609 16341 solver.cpp:214] Iteration 95500, loss = 0.101736
+I0812 10:55:21.461647 16341 solver.cpp:229]     Train net output #0: loss = 0.101736 (* 1 = 0.101736 loss)
+I0812 10:55:21.461657 16341 solver.cpp:486] Iteration 95500, lr = 0.0001
+I0812 10:55:21.466769 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.466845 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_96000.caffemodel
+I0812 10:55:21.467073 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_96000.solverstate
+I0812 10:55:21.467221 16341 solver.cpp:294] Iteration 96000, Testing net (#0)
+I0812 10:55:21.467254 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.467285 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.467295 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.468559 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.468581 16341 solver.cpp:343]     Test net output #1: loss = 0.123889 (* 1 = 0.123889 loss)
+I0812 10:55:21.468606 16341 solver.cpp:214] Iteration 96000, loss = 0.101693
+I0812 10:55:21.468621 16341 solver.cpp:229]     Train net output #0: loss = 0.101693 (* 1 = 0.101693 loss)
+I0812 10:55:21.468631 16341 solver.cpp:486] Iteration 96000, lr = 0.0001
+I0812 10:55:21.473820 16341 solver.cpp:214] Iteration 96500, loss = 0.101649
+I0812 10:55:21.473850 16341 solver.cpp:229]     Train net output #0: loss = 0.101649 (* 1 = 0.101649 loss)
+I0812 10:55:21.473860 16341 solver.cpp:486] Iteration 96500, lr = 0.0001
+I0812 10:55:21.478981 16341 solver.cpp:294] Iteration 97000, Testing net (#0)
+I0812 10:55:21.478996 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.479004 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.479013 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.480315 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.480335 16341 solver.cpp:343]     Test net output #1: loss = 0.122528 (* 1 = 0.122528 loss)
+I0812 10:55:21.480360 16341 solver.cpp:214] Iteration 97000, loss = 0.101605
+I0812 10:55:21.480375 16341 solver.cpp:229]     Train net output #0: loss = 0.101605 (* 1 = 0.101605 loss)
+I0812 10:55:21.480386 16341 solver.cpp:486] Iteration 97000, lr = 0.0001
+I0812 10:55:21.485555 16341 solver.cpp:214] Iteration 97500, loss = 0.101562
+I0812 10:55:21.485582 16341 solver.cpp:229]     Train net output #0: loss = 0.101562 (* 1 = 0.101562 loss)
+I0812 10:55:21.485591 16341 solver.cpp:486] Iteration 97500, lr = 0.0001
+I0812 10:55:21.490818 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.490871 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_98000.caffemodel
+I0812 10:55:21.491111 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_98000.solverstate
+I0812 10:55:21.491298 16341 solver.cpp:294] Iteration 98000, Testing net (#0)
+I0812 10:55:21.491343 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.491353 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.491365 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.492683 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.492717 16341 solver.cpp:343]     Test net output #1: loss = 0.123695 (* 1 = 0.123695 loss)
+I0812 10:55:21.492743 16341 solver.cpp:214] Iteration 98000, loss = 0.101518
+I0812 10:55:21.492766 16341 solver.cpp:229]     Train net output #0: loss = 0.101518 (* 1 = 0.101518 loss)
+I0812 10:55:21.492776 16341 solver.cpp:486] Iteration 98000, lr = 0.0001
+I0812 10:55:21.497969 16341 solver.cpp:214] Iteration 98500, loss = 0.101475
+I0812 10:55:21.498000 16341 solver.cpp:229]     Train net output #0: loss = 0.101475 (* 1 = 0.101475 loss)
+I0812 10:55:21.498011 16341 solver.cpp:486] Iteration 98500, lr = 0.0001
+I0812 10:55:21.503134 16341 solver.cpp:294] Iteration 99000, Testing net (#0)
+I0812 10:55:21.503162 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.503170 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.503190 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.504523 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.504555 16341 solver.cpp:343]     Test net output #1: loss = 0.123669 (* 1 = 0.123669 loss)
+I0812 10:55:21.504581 16341 solver.cpp:214] Iteration 99000, loss = 0.101432
+I0812 10:55:21.504595 16341 solver.cpp:229]     Train net output #0: loss = 0.101432 (* 1 = 0.101432 loss)
+I0812 10:55:21.504606 16341 solver.cpp:486] Iteration 99000, lr = 0.0001
+I0812 10:55:21.509920 16341 solver.cpp:214] Iteration 99500, loss = 0.101391
+I0812 10:55:21.509943 16341 solver.cpp:229]     Train net output #0: loss = 0.101391 (* 1 = 0.101391 loss)
+I0812 10:55:21.509953 16341 solver.cpp:486] Iteration 99500, lr = 0.0001
+I0812 10:55:21.514991 16341 net.cpp:763] Serializing 3 layers
+I0812 10:55:21.515025 16341 solver.cpp:361] Snapshotting to /home/abba/caffe/examples/simple/simple_iter_100000.caffemodel
+I0812 10:55:21.515290 16341 solver.cpp:369] Snapshotting solver state to /home/abba/caffe/examples/simple/simple_iter_100000.solverstate
+I0812 10:55:21.515506 16341 solver.cpp:276] Iteration 100000, loss = 0.101349
+I0812 10:55:21.515534 16341 solver.cpp:294] Iteration 100000, Testing net (#0)
+I0812 10:55:21.515543 16341 net.cpp:671] Copying source layer data
+I0812 10:55:21.515563 16341 net.cpp:671] Copying source layer fc1
+I0812 10:55:21.515583 16341 net.cpp:671] Copying source layer loss
+I0812 10:55:21.516870 16341 solver.cpp:343]     Test net output #0: accuracy = 1
+I0812 10:55:21.516891 16341 solver.cpp:343]     Test net output #1: loss = 0.12231 (* 1 = 0.12231 loss)
+I0812 10:55:21.516902 16341 solver.cpp:281] Optimization Done.
+I0812 10:55:21.516911 16341 caffe.cpp:134] Optimization Done.

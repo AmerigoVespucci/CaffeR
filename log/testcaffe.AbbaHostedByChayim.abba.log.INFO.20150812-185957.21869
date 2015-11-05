@@ -1,0 +1,364 @@
+Log file created at: 2015/08/12 18:59:57
+Running on machine: AbbaHostedByChayim
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0812 18:59:57.890990 21869 caffe.cpp:117] Use CPU.
+I0812 18:59:57.891469 21869 caffe.cpp:121] Starting Optimization
+I0812 18:59:57.891574 21869 solver.cpp:32] Initializing solver from parameters: 
+train_net: "/home/abba/caffe/examples/feature_input/train.prototxt"
+test_net: "/home/abba/caffe/examples/feature_input/train.prototxt"
+test_iter: 100
+test_interval: 1000
+base_lr: 0.01
+display: 500
+max_iter: 10000
+lr_policy: "step"
+gamma: 0.1
+momentum: 0.9
+weight_decay: 0.0005
+stepsize: 5000
+snapshot: 10000
+snapshot_prefix: "/devlink/caffe/data/feature_input/snaps"
+solver_mode: CPU
+I0812 18:59:57.891639 21869 solver.cpp:61] Creating training net from train_net file: /home/abba/caffe/examples/feature_input/train.prototxt
+I0812 18:59:59.202179 21869 net.cpp:287] The NetState phase (0) differed from the phase (1) specified by a rule in layer data
+I0812 18:59:59.202208 21869 net.cpp:287] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0812 18:59:59.202260 21869 net.cpp:42] Initializing net from parameters: 
+name: "ClassifyFromFeaturesNet"
+state {
+  phase: TRAIN
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  hdf5_data_param {
+    source: "/home/abba/caffe/examples/feature_input/train_list.txt"
+    batch_size: 5
+  }
+}
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "fc1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc1"
+  bottom: "label"
+  top: "loss"
+}
+I0812 19:00:01.362063 21869 net.cpp:67] Memory required for data: 0
+I0812 19:00:01.362109 21869 layer_factory.hpp:74] Creating layer data
+I0812 19:00:01.362130 21869 net.cpp:90] Creating Layer data
+I0812 19:00:01.362138 21869 net.cpp:368] data -> data
+I0812 19:00:01.362159 21869 net.cpp:368] data -> label
+I0812 19:00:01.362169 21869 net.cpp:120] Setting up data
+I0812 19:00:05.092571 21869 hdf5_data_layer.cpp:80] Loading list of HDF5 filenames from: /home/abba/caffe/examples/feature_input/train_list.txt
+I0812 19:00:10.747978 21869 hdf5_data_layer.cpp:94] Number of HDF5 files: 1
+I0812 19:00:17.172569 21869 hdf5_data_layer.cpp:29] Loading HDF5 file: /home/abba/caffe/examples/feature_input/train.h5
+I0812 19:00:21.893501 21869 hdf5_data_layer.cpp:68] Successully loaded 50 rows
+I0812 19:00:21.893543 21869 net.cpp:127] Top shape: 5 30 (150)
+I0812 19:00:21.893551 21869 net.cpp:127] Top shape: 5 1 (5)
+I0812 19:22:25.370766 21869 net.cpp:133] Memory required for data: 620
+I0812 19:22:25.370816 21869 layer_factory.hpp:74] Creating layer fc1
+I0812 19:22:25.370842 21869 net.cpp:90] Creating Layer fc1
+I0812 19:22:25.370849 21869 net.cpp:410] fc1 <- data
+I0812 19:22:25.370877 21869 net.cpp:368] fc1 -> fc1
+I0812 19:22:25.370892 21869 net.cpp:120] Setting up fc1
+I0812 19:22:25.371296 21869 net.cpp:127] Top shape: 5 10 (50)
+I0812 19:23:49.117295 21869 net.cpp:133] Memory required for data: 820
+I0812 19:23:49.117357 21869 layer_factory.hpp:74] Creating layer loss
+I0812 19:23:49.117377 21869 net.cpp:90] Creating Layer loss
+I0812 19:23:49.117384 21869 net.cpp:410] loss <- fc1
+I0812 19:23:49.117394 21869 net.cpp:410] loss <- label
+I0812 19:23:49.117403 21869 net.cpp:368] loss -> loss
+I0812 19:23:49.117413 21869 net.cpp:120] Setting up loss
+I0812 19:23:49.117427 21869 layer_factory.hpp:74] Creating layer loss
+I0812 19:23:49.117463 21869 net.cpp:127] Top shape: (1)
+I0812 19:23:49.117468 21869 net.cpp:129]     with loss weight 1
+I0812 19:24:27.706503 21869 net.cpp:133] Memory required for data: 824
+I0812 19:24:27.706547 21869 net.cpp:192] loss needs backward computation.
+I0812 19:24:27.706557 21869 net.cpp:192] fc1 needs backward computation.
+I0812 19:24:27.706562 21869 net.cpp:194] data does not need backward computation.
+I0812 19:24:27.706567 21869 net.cpp:235] This network produces output loss
+I0812 19:24:27.706579 21869 net.cpp:482] Collecting Learning Rate and Weight Decay.
+I0812 19:24:27.706588 21869 net.cpp:247] Network initialization done.
+I0812 19:24:41.507851 21869 net.cpp:248] Memory required for data: 824
+I0812 19:24:41.509157 21869 solver.cpp:154] Creating test net (#0) specified by test_net file: /home/abba/caffe/examples/feature_input/train.prototxt
+I0812 19:24:41.509191 21869 net.cpp:287] The NetState phase (1) differed from the phase (0) specified by a rule in layer data
+I0812 19:24:41.509269 21869 net.cpp:42] Initializing net from parameters: 
+name: "ClassifyFromFeaturesNet"
+state {
+  phase: TEST
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  hdf5_data_param {
+    source: "/home/abba/caffe/examples/feature_input/test_list.txt"
+    batch_size: 5
+  }
+}
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "fc1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc1"
+  bottom: "label"
+  top: "loss"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc1"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+I0812 19:24:49.132899 21869 net.cpp:67] Memory required for data: 0
+I0812 19:24:49.132941 21869 layer_factory.hpp:74] Creating layer data
+I0812 19:24:49.132962 21869 net.cpp:90] Creating Layer data
+I0812 19:24:49.132971 21869 net.cpp:368] data -> data
+I0812 19:24:49.132988 21869 net.cpp:368] data -> label
+I0812 19:24:49.132998 21869 net.cpp:120] Setting up data
+I0812 19:24:54.389853 21869 hdf5_data_layer.cpp:80] Loading list of HDF5 filenames from: /home/abba/caffe/examples/feature_input/test_list.txt
+I0812 19:24:59.807835 21869 hdf5_data_layer.cpp:94] Number of HDF5 files: 1
+I0812 19:25:03.391386 21869 hdf5_data_layer.cpp:29] Loading HDF5 file: /home/abba/caffe/examples/feature_input/test.h5
+I0812 19:25:07.740738 21869 hdf5_data_layer.cpp:68] Successully loaded 50 rows
+I0812 19:25:07.740779 21869 net.cpp:127] Top shape: 5 30 (150)
+I0812 19:25:07.740788 21869 net.cpp:127] Top shape: 5 1 (5)
+I0812 19:25:13.303565 21869 net.cpp:133] Memory required for data: 620
+I0812 19:25:13.303598 21869 layer_factory.hpp:74] Creating layer label_data_1_split
+I0812 19:25:13.303618 21869 net.cpp:90] Creating Layer label_data_1_split
+I0812 19:25:13.303625 21869 net.cpp:410] label_data_1_split <- label
+I0812 19:25:13.303639 21869 net.cpp:368] label_data_1_split -> label_data_1_split_0
+I0812 19:25:13.303653 21869 net.cpp:368] label_data_1_split -> label_data_1_split_1
+I0812 19:25:13.303663 21869 net.cpp:120] Setting up label_data_1_split
+I0812 19:25:13.303678 21869 net.cpp:127] Top shape: 5 1 (5)
+I0812 19:25:13.303683 21869 net.cpp:127] Top shape: 5 1 (5)
+I0812 19:25:33.834542 21869 net.cpp:133] Memory required for data: 660
+I0812 19:25:33.834591 21869 layer_factory.hpp:74] Creating layer fc1
+I0812 19:25:33.834619 21869 net.cpp:90] Creating Layer fc1
+I0812 19:25:33.834626 21869 net.cpp:410] fc1 <- data
+I0812 19:25:33.834645 21869 net.cpp:368] fc1 -> fc1
+I0812 19:25:33.834658 21869 net.cpp:120] Setting up fc1
+I0812 19:25:33.834703 21869 net.cpp:127] Top shape: 5 10 (50)
+I0812 19:25:36.459367 21869 net.cpp:133] Memory required for data: 860
+I0812 19:25:36.459416 21869 layer_factory.hpp:74] Creating layer fc1_fc1_0_split
+I0812 19:25:36.459432 21869 net.cpp:90] Creating Layer fc1_fc1_0_split
+I0812 19:25:36.459439 21869 net.cpp:410] fc1_fc1_0_split <- fc1
+I0812 19:25:36.459452 21869 net.cpp:368] fc1_fc1_0_split -> fc1_fc1_0_split_0
+I0812 19:25:36.459465 21869 net.cpp:368] fc1_fc1_0_split -> fc1_fc1_0_split_1
+I0812 19:25:36.459473 21869 net.cpp:120] Setting up fc1_fc1_0_split
+I0812 19:25:36.459487 21869 net.cpp:127] Top shape: 5 10 (50)
+I0812 19:25:36.459493 21869 net.cpp:127] Top shape: 5 10 (50)
+I0812 19:25:38.395669 21869 net.cpp:133] Memory required for data: 1260
+I0812 19:25:38.395700 21869 layer_factory.hpp:74] Creating layer loss
+I0812 19:25:38.395723 21869 net.cpp:90] Creating Layer loss
+I0812 19:25:38.395731 21869 net.cpp:410] loss <- fc1_fc1_0_split_0
+I0812 19:25:38.395743 21869 net.cpp:410] loss <- label_data_1_split_0
+I0812 19:25:38.395752 21869 net.cpp:368] loss -> loss
+I0812 19:25:38.395764 21869 net.cpp:120] Setting up loss
+I0812 19:25:38.395772 21869 layer_factory.hpp:74] Creating layer loss
+I0812 19:25:38.395797 21869 net.cpp:127] Top shape: (1)
+I0812 19:25:38.395802 21869 net.cpp:129]     with loss weight 1
+I0812 19:25:44.796530 21869 net.cpp:133] Memory required for data: 1264
+I0812 19:25:44.796581 21869 layer_factory.hpp:74] Creating layer accuracy
+I0812 19:25:44.796600 21869 net.cpp:90] Creating Layer accuracy
+I0812 19:25:44.796608 21869 net.cpp:410] accuracy <- fc1_fc1_0_split_1
+I0812 19:25:44.796623 21869 net.cpp:410] accuracy <- label_data_1_split_1
+I0812 19:25:44.796633 21869 net.cpp:368] accuracy -> accuracy
+I0812 19:25:44.796648 21869 net.cpp:120] Setting up accuracy
+I0812 19:25:44.796663 21869 net.cpp:127] Top shape: (1)
+I0812 19:25:49.692451 21869 net.cpp:133] Memory required for data: 1268
+I0812 19:25:49.692482 21869 net.cpp:194] accuracy does not need backward computation.
+I0812 19:25:49.692502 21869 net.cpp:192] loss needs backward computation.
+I0812 19:25:49.692509 21869 net.cpp:192] fc1_fc1_0_split needs backward computation.
+I0812 19:25:49.692514 21869 net.cpp:192] fc1 needs backward computation.
+I0812 19:25:49.692520 21869 net.cpp:194] label_data_1_split does not need backward computation.
+I0812 19:25:49.692526 21869 net.cpp:194] data does not need backward computation.
+I0812 19:25:49.692531 21869 net.cpp:235] This network produces output accuracy
+I0812 19:25:49.692539 21869 net.cpp:235] This network produces output loss
+I0812 19:25:49.692553 21869 net.cpp:482] Collecting Learning Rate and Weight Decay.
+I0812 19:25:49.692561 21869 net.cpp:247] Network initialization done.
+I0812 19:25:54.885347 21869 net.cpp:248] Memory required for data: 1268
+I0812 19:25:54.885438 21869 solver.cpp:42] Solver scaffolding done.
+I0812 19:25:54.885468 21869 solver.cpp:250] Solving ClassifyFromFeaturesNet
+I0812 19:25:54.885473 21869 solver.cpp:251] Learning Rate Policy: step
+I0812 19:25:54.885480 21869 solver.cpp:294] Iteration 0, Testing net (#0)
+I0812 19:25:54.885494 21869 net.cpp:671] Copying source layer data
+I0812 19:25:54.885499 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:54.885506 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:54.898082 21869 solver.cpp:343]     Test net output #0: accuracy = 0.1
+I0812 19:25:54.898166 21869 solver.cpp:343]     Test net output #1: loss = 4.56322 (* 1 = 4.56322 loss)
+I0812 19:25:54.898888 21869 solver.cpp:214] Iteration 0, loss = 2.5904
+I0812 19:25:54.898934 21869 solver.cpp:229]     Train net output #0: loss = 2.5904 (* 1 = 2.5904 loss)
+I0812 19:25:54.898952 21869 solver.cpp:486] Iteration 0, lr = 0.01
+I0812 19:25:54.908947 21869 solver.cpp:214] Iteration 500, loss = 0.000145633
+I0812 19:25:54.909029 21869 solver.cpp:229]     Train net output #0: loss = 0.000145633 (* 1 = 0.000145633 loss)
+I0812 19:25:54.909041 21869 solver.cpp:486] Iteration 500, lr = 0.01
+I0812 19:25:54.918974 21869 solver.cpp:294] Iteration 1000, Testing net (#0)
+I0812 19:25:54.919008 21869 net.cpp:671] Copying source layer data
+I0812 19:25:54.919018 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:54.919028 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:54.921514 21869 solver.cpp:343]     Test net output #0: accuracy = 0.64
+I0812 19:25:54.921555 21869 solver.cpp:343]     Test net output #1: loss = 2.06022 (* 1 = 2.06022 loss)
+I0812 19:25:54.921605 21869 solver.cpp:214] Iteration 1000, loss = 0.000152656
+I0812 19:25:54.921632 21869 solver.cpp:229]     Train net output #0: loss = 0.000152656 (* 1 = 0.000152656 loss)
+I0812 19:25:54.921643 21869 solver.cpp:486] Iteration 1000, lr = 0.01
+I0812 19:25:54.931334 21869 solver.cpp:214] Iteration 1500, loss = 0.000158379
+I0812 19:25:54.931375 21869 solver.cpp:229]     Train net output #0: loss = 0.000158379 (* 1 = 0.000158379 loss)
+I0812 19:25:54.931385 21869 solver.cpp:486] Iteration 1500, lr = 0.01
+I0812 19:25:54.941272 21869 solver.cpp:294] Iteration 2000, Testing net (#0)
+I0812 19:25:54.941301 21869 net.cpp:671] Copying source layer data
+I0812 19:25:54.941311 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:54.941321 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:54.943749 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:54.943778 21869 solver.cpp:343]     Test net output #1: loss = 1.98202 (* 1 = 1.98202 loss)
+I0812 19:25:54.943814 21869 solver.cpp:214] Iteration 2000, loss = 0.000163339
+I0812 19:25:54.943831 21869 solver.cpp:229]     Train net output #0: loss = 0.000163339 (* 1 = 0.000163339 loss)
+I0812 19:25:54.943845 21869 solver.cpp:486] Iteration 2000, lr = 0.01
+I0812 19:25:54.953768 21869 solver.cpp:214] Iteration 2500, loss = 0.000167799
+I0812 19:25:54.953809 21869 solver.cpp:229]     Train net output #0: loss = 0.000167799 (* 1 = 0.000167799 loss)
+I0812 19:25:54.953820 21869 solver.cpp:486] Iteration 2500, lr = 0.01
+I0812 19:25:54.963771 21869 solver.cpp:294] Iteration 3000, Testing net (#0)
+I0812 19:25:54.963793 21869 net.cpp:671] Copying source layer data
+I0812 19:25:54.963801 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:54.963810 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:54.966431 21869 solver.cpp:343]     Test net output #0: accuracy = 0.68
+I0812 19:25:54.966471 21869 solver.cpp:343]     Test net output #1: loss = 1.91497 (* 1 = 1.91497 loss)
+I0812 19:25:54.966514 21869 solver.cpp:214] Iteration 3000, loss = 0.000171376
+I0812 19:25:54.966532 21869 solver.cpp:229]     Train net output #0: loss = 0.000171376 (* 1 = 0.000171376 loss)
+I0812 19:25:54.966543 21869 solver.cpp:486] Iteration 3000, lr = 0.01
+I0812 19:25:54.976886 21869 solver.cpp:214] Iteration 3500, loss = 0.000174452
+I0812 19:25:54.976936 21869 solver.cpp:229]     Train net output #0: loss = 0.000174452 (* 1 = 0.000174452 loss)
+I0812 19:25:54.976950 21869 solver.cpp:486] Iteration 3500, lr = 0.01
+I0812 19:25:54.987370 21869 solver.cpp:294] Iteration 4000, Testing net (#0)
+I0812 19:25:54.987397 21869 net.cpp:671] Copying source layer data
+I0812 19:25:54.987407 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:54.987417 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:54.989950 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:54.989977 21869 solver.cpp:343]     Test net output #1: loss = 1.85518 (* 1 = 1.85518 loss)
+I0812 19:25:54.990012 21869 solver.cpp:214] Iteration 4000, loss = 0.000176921
+I0812 19:25:54.990030 21869 solver.cpp:229]     Train net output #0: loss = 0.000176921 (* 1 = 0.000176921 loss)
+I0812 19:25:54.990041 21869 solver.cpp:486] Iteration 4000, lr = 0.01
+I0812 19:25:55.000068 21869 solver.cpp:214] Iteration 4500, loss = 0.000179019
+I0812 19:25:55.000119 21869 solver.cpp:229]     Train net output #0: loss = 0.000179019 (* 1 = 0.000179019 loss)
+I0812 19:25:55.000149 21869 solver.cpp:486] Iteration 4500, lr = 0.01
+I0812 19:25:55.010545 21869 solver.cpp:294] Iteration 5000, Testing net (#0)
+I0812 19:25:55.010571 21869 net.cpp:671] Copying source layer data
+I0812 19:25:55.010578 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:55.010587 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:55.013128 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:55.013159 21869 solver.cpp:343]     Test net output #1: loss = 1.8016 (* 1 = 1.8016 loss)
+I0812 19:25:55.013191 21869 solver.cpp:214] Iteration 5000, loss = 0.000180808
+I0812 19:25:55.013207 21869 solver.cpp:229]     Train net output #0: loss = 0.000180808 (* 1 = 0.000180808 loss)
+I0812 19:25:55.013227 21869 solver.cpp:486] Iteration 5000, lr = 0.001
+I0812 19:25:55.023167 21869 solver.cpp:214] Iteration 5500, loss = 0.00018088
+I0812 19:25:55.023203 21869 solver.cpp:229]     Train net output #0: loss = 0.00018088 (* 1 = 0.00018088 loss)
+I0812 19:25:55.023214 21869 solver.cpp:486] Iteration 5500, lr = 0.001
+I0812 19:25:55.032496 21869 solver.cpp:294] Iteration 6000, Testing net (#0)
+I0812 19:25:55.032512 21869 net.cpp:671] Copying source layer data
+I0812 19:25:55.032521 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:55.032528 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:55.035465 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:55.035496 21869 solver.cpp:343]     Test net output #1: loss = 1.79623 (* 1 = 1.79623 loss)
+I0812 19:25:55.035533 21869 solver.cpp:214] Iteration 6000, loss = 0.000181094
+I0812 19:25:55.035549 21869 solver.cpp:229]     Train net output #0: loss = 0.000181094 (* 1 = 0.000181094 loss)
+I0812 19:25:55.035560 21869 solver.cpp:486] Iteration 6000, lr = 0.001
+I0812 19:25:55.045003 21869 solver.cpp:214] Iteration 6500, loss = 0.000181285
+I0812 19:25:55.045034 21869 solver.cpp:229]     Train net output #0: loss = 0.000181285 (* 1 = 0.000181285 loss)
+I0812 19:25:55.045055 21869 solver.cpp:486] Iteration 6500, lr = 0.001
+I0812 19:25:55.054847 21869 solver.cpp:294] Iteration 7000, Testing net (#0)
+I0812 19:25:55.054870 21869 net.cpp:671] Copying source layer data
+I0812 19:25:55.054878 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:55.054888 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:55.057543 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:55.057569 21869 solver.cpp:343]     Test net output #1: loss = 1.79124 (* 1 = 1.79124 loss)
+I0812 19:25:55.057612 21869 solver.cpp:214] Iteration 7000, loss = 0.000181452
+I0812 19:25:55.057648 21869 solver.cpp:229]     Train net output #0: loss = 0.000181452 (* 1 = 0.000181452 loss)
+I0812 19:25:55.057659 21869 solver.cpp:486] Iteration 7000, lr = 0.001
+I0812 19:25:55.067422 21869 solver.cpp:214] Iteration 7500, loss = 0.000181667
+I0812 19:25:55.067456 21869 solver.cpp:229]     Train net output #0: loss = 0.000181667 (* 1 = 0.000181667 loss)
+I0812 19:25:55.067468 21869 solver.cpp:486] Iteration 7500, lr = 0.001
+I0812 19:25:55.077481 21869 solver.cpp:294] Iteration 8000, Testing net (#0)
+I0812 19:25:55.077514 21869 net.cpp:671] Copying source layer data
+I0812 19:25:55.077527 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:55.077538 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:55.079996 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:55.080034 21869 solver.cpp:343]     Test net output #1: loss = 1.78631 (* 1 = 1.78631 loss)
+I0812 19:25:55.080075 21869 solver.cpp:214] Iteration 8000, loss = 0.00018181
+I0812 19:25:55.080095 21869 solver.cpp:229]     Train net output #0: loss = 0.00018181 (* 1 = 0.00018181 loss)
+I0812 19:25:55.080106 21869 solver.cpp:486] Iteration 8000, lr = 0.001
+I0812 19:25:55.090261 21869 solver.cpp:214] Iteration 8500, loss = 0.000182048
+I0812 19:25:55.090297 21869 solver.cpp:229]     Train net output #0: loss = 0.000182048 (* 1 = 0.000182048 loss)
+I0812 19:25:55.090308 21869 solver.cpp:486] Iteration 8500, lr = 0.001
+I0812 19:25:55.099748 21869 solver.cpp:294] Iteration 9000, Testing net (#0)
+I0812 19:25:55.099782 21869 net.cpp:671] Copying source layer data
+I0812 19:25:55.099824 21869 net.cpp:671] Copying source layer fc1
+I0812 19:25:55.099834 21869 net.cpp:671] Copying source layer loss
+I0812 19:25:55.102479 21869 solver.cpp:343]     Test net output #0: accuracy = 0.66
+I0812 19:25:55.102514 21869 solver.cpp:343]     Test net output #1: loss = 1.78145 (* 1 = 1.78145 loss)
+I0812 19:25:55.102551 21869 solver.cpp:214] Iteration 9000, loss = 0.000182263
+I0812 19:25:55.102569 21869 solver.cpp:229]     Train net output #0: loss = 0.000182263 (* 1 = 0.000182263 loss)
+I0812 19:25:55.102581 21869 solver.cpp:486] Iteration 9000, lr = 0.001
+I0812 19:25:55.112040 21869 solver.cpp:214] Iteration 9500, loss = 0.000182382
+I0812 19:25:55.112076 21869 solver.cpp:229]     Train net output #0: loss = 0.000182382 (* 1 = 0.000182382 loss)
+I0812 19:25:55.112085 21869 solver.cpp:486] Iteration 9500, lr = 0.001
+I0812 19:25:55.121654 21869 net.cpp:763] Serializing 3 layers
+I0812 19:25:55.121721 21869 solver.cpp:361] Snapshotting to /devlink/caffe/data/feature_input/snaps_iter_10000.caffemodel
+F0812 19:25:55.122292 21869 io.cpp:67] Check failed: proto.SerializeToOstream(&output) 

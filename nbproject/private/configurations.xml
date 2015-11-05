@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_signals>
+        </gdb_signals>
+        <gdb_options>
+          <DebugOptions>
+            <option name="debug_command"
+                    value="&quot;${OUTPUT_PATH}&quot; train --solver=/home/abba/caffe-recurrent/toys/FnctnTrain/Add/solver.prototxt --snapshot=/devlink/caffe/data/FnctnTrain/Add/models/a_iter_400000.solverstate "/>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/simple/solver.prototxt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/feature_input/solver.prototxt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/ae_board/solver.prototxt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/validmove/solver.prototxt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/validmove/solver.prototxt  -snapshot /guten/data/validmove_iter_60000.solverstate</runcommandpicklistitem>
+          <runcommandpicklistitem> "${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/validmove/solver.prototxt  -snapshot /guten/data/validmove_iter_60000.solverstate</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/validmove/solver.prototxt  -snapshot /guten/data/validmove_iter_80000.solverstate</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" /home/abba/caffe/models/bvlc_reference_caffenet/deploy.prototxt /devlink/caffe/data/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel /devlink/caffe/data/bvlc_reference_caffenet/imagenet_mean.binaryproto /devlink/caffe/data/bvlc_reference_caffenet/synset_words.txt /home/abba/caffe/examples/images/cat.jpg</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" 1544</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/toys/SimpleMoves/Forward/solver.prototxt</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/toys/SimpleMoves/Forward/solver.prototxt</runcommand>
+        <rundir></rundir>
+        <buildfirst>true</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+            <option name="debug_command"
+                    value="&quot;${OUTPUT_PATH}&quot; /home/abba/caffe/models/bvlc_reference_caffenet/deploy.prototxt /devlink/caffe/data/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel /devlink/caffe/data/bvlc_reference_caffenet/imagenet_mean.binaryproto /devlink/caffe/data/bvlc_reference_caffenet/synset_words.txt /home/abba/caffe/examples/images/cat.jpg"/>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" /home/abba/caffe/models/bvlc_reference_caffenet/deploy.prototxt /devlink/caffe/data/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel /devlink/caffe/data/bvlc_reference_caffenet/imagenet_mean.binaryproto /devlink/caffe/data/bvlc_reference_caffenet/synset_words.txt /home/abba/caffe/examples/images/cat.jpg</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/examples/ae_board/solver.prototxt</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" </runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"  =/home/abba/caffe/toys/ValidClicks/train.prototxt /guten/data/ValidClicks/data/v.caffemodel</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"  /home/abba/caffe/toys/ValidClicks/train.prototxt /guten/data/ValidClicks/data/v.caffemodel</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" 1544</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/toys/SimpleMoves/Forward/solver.prototxt</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}" train --solver=/home/abba/caffe/toys/SimpleMoves/Forward/solver.prototxt</runcommand>
+        <rundir></rundir>
+        <buildfirst>true</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>
