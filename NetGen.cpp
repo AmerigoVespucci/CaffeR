@@ -51,13 +51,15 @@ public:
 	
 	NGNet(	shared_ptr<NGNet> launcher,
 			int mod_param_layer_idx,
-			int mod_layer_idx) {
+			int mod_layer_idx,
+			int mod_layer_post_idx) {
 		model_file_ = launcher->model_file_;
 		input_layer_name_ = launcher->input_layer_name_;
 		output_layer_name_ = launcher->output_layer_name_;
 		b_self_launched = false;
 		mod_param_layer_idx_ = mod_param_layer_idx;
 		mod_layer_idx_ = mod_layer_idx;
+		mod_layer_post_idx_ = mod_layer_post_idx;
 		launcher_ = launcher;
 	}
 
@@ -98,6 +100,7 @@ private:
 	shared_ptr<NGNet> launcher_; // dangerous pointer. For now, promise to use only in Init and never again
 	int mod_param_layer_idx_;
 	int mod_layer_idx_;
+	int mod_layer_post_idx_;
 };
 
 class NetGen {
@@ -195,12 +198,44 @@ void NGNet::Launch()
 					if (il == mod_layer_idx_) {
 						rtwice = 0.5f;
 					}
-					for (int iw = 0; iw < weights->count(); iw++) {
-						float adj = rn() * rmod;
-						pnw[iw * 2] = (pw[iw] * rtwice) + adj;
-						pnw[(iw * 2)+1] = (pw[iw] * rtwice) - adj;
+					int num_inputs = 1;
+					if (weights->num_axes() > 1) { 
+						num_inputs = weights->shape(1);
+					}
+					int num_outputs = weights->shape(0);
+					for (int jw = 0; jw < num_outputs; jw++) {
+						for (int iw = 0; iw < num_inputs; iw++) {
+							float adj = rn() * rmod;
+							//adj = 0.0f;
+							int jwo = jw * 2;
+							if (il == mod_layer_idx_) {
+								pnw[(jwo * num_inputs) + iw] 
+									= (pw[(jw * num_inputs) + iw] * rtwice) + adj;
+								pnw[((jwo + 1) * num_inputs) + iw] 
+									= (pw[(jw * num_inputs) + iw] * rtwice) - adj;
+							}
+							else if (il == mod_layer_post_idx_) {
+								int ii = (jw * num_inputs) + iw;
+								pnw[ii * 2] = pw[ii];
+								pnw[(ii * 2) + 1] = pw[ii];
+							}
+						}
 					}
 				}
+//				if (il == 6) {
+//					const float * pw = weights->cpu_data();
+//					std::cerr << "old weights: ";
+//					for (int iw = 0; iw < weights->count(); iw++) {
+//						std::cerr << pw[iw] << ", ";
+//					}
+//					std::cerr << std::endl;
+//					const float * pnw = new_weights->cpu_data();
+//					std::cerr << "new weights: ";
+//					for (int iw = 0; iw < new_weights->count(); iw++) {
+//						std::cerr << pnw[iw] << ", ";
+//					}
+//					std::cerr << std::endl;
+//				}
 
 			}
 		}
@@ -377,7 +412,7 @@ bool NetGen::Classify() {
 	
 	
 	int CountMatch = 0;
-	int NumTestRecs = 5000;
+	int NumTestRecs = 1000;
 	
 	for (int in = 0; in < 2; in++) {
 		float loss_sum = 0.0f;
@@ -432,8 +467,9 @@ int main(int argc, char** argv) {
 	int input_data_idx = 0;
 	int input_label_idx = 1;
 
-	const int mod_param_layer_idx = 2;
-	const int mod_layer_idx = 2;
+	const int mod_param_layer_idx = 2; // 5; // 2
+	const int mod_layer_idx = 2; // 4; // 2
+	const int mod_layer_idx_post = 4; // 6; // 4
 
 	NetGen classifier;
 	classifier.PreInit();
@@ -442,7 +478,8 @@ int main(int argc, char** argv) {
 		"/devlink/github/test/toys/NetGen/GramPosValid/train.prototxt",
 		"/devlink/caffe/data/NetGen/GramPosValid/models/g_iter_120921.caffemodel",
 		"data", "SquashOutput")));
-	nets.push_back(shared_ptr<NGNet>(new NGNet(nets[0], mod_param_layer_idx, mod_layer_idx)));
+	nets.push_back(shared_ptr<NGNet>(new NGNet(	nets[0], mod_param_layer_idx, 
+												mod_layer_idx, mod_layer_idx_post)));
 
 //	nets.push_back(NGNet(
 //		"/home/abba/caffe-recurrent/toys/WordEmbed/GramValid/train.prototxt",
