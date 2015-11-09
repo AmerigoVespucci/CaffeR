@@ -18,7 +18,7 @@
         <gdb_options>
           <DebugOptions>
             <option name="debug_command"
-                    value="&quot;${OUTPUT_PATH}&quot; train --solver=/home/abba/caffe-recurrent/toys/FnctnTrain/Add/solver.prototxt --snapshot=/devlink/caffe/data/FnctnTrain/Add/models/a_iter_400000.solverstate "/>
+                    value="&quot;${OUTPUT_PATH}&quot;  train --solver=/devlink/github/test/toys/NetGen/GramPosValid/solver.prototxt "/>
           </DebugOptions>
         </gdb_options>
         <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>

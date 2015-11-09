@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <boost/random.hpp>
+#include <boost/algorithm/string.hpp>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
@@ -303,10 +304,213 @@ void NetGen::PreInit()
 #endif
 }
 
+const bool cb_ReLU = true;
+const bool cb_Sigmoid = true;
+const bool cb_drop = true;
+
+const string cHD5Str1 = "name: \"GramPosValid\"\n"
+					"layer {\n"
+					"	name: \"data\"\n"
+					"	type: \"HDF5Data\"\n"
+					"	top: \"data\"\n"
+					"	top: \"label\"\n"	
+					"	include {\n";
+const string cHD5Str2 = "	}\n"
+					"	hdf5_data_param {\n"
+					"		source: ";
+const string cHD5StrBatch128 = "\n"
+					"		batch_size: 128\n"
+					"	}\n"
+					"}\n";
+const string cHD5StrBatch1 = "\n"
+					"		batch_size: 1\n"
+					"	}\n"
+					"}\n";
+
+string CreateHD5TrainStr(string train_file)
+{
+	string ret_str = cHD5Str1 
+					+ "		phase: TRAIN\n"
+					+ cHD5Str2
+					+ "\"" + train_file + "\""
+					+ cHD5StrBatch128;
+	
+	return ret_str;
+					
+}
+
+string CreateHD5TestStr(string test_file)
+{
+	string ret_str = cHD5Str1 
+					+ "		phase: TEST\n"
+					+ cHD5Str2
+					+ "\"" + test_file + "\""
+					+ cHD5StrBatch1;
+					
+	return ret_str;
+}
+
+string CreateReLUStr()
+{
+	return string(	"layer {\n"
+					"  name: \"squash#id#\"\n"
+					"  type: \"ReLU\"\n"
+					"  bottom: \"ip#id#\"\n"
+					"  top: \"ip#id#s\"\n"
+					"}\n");
+
+}
+
+string CreateSigmoidStr()
+{
+	return string(	"layer {\n"
+					"  name: \"squash#id#\"\n"
+					"  type: \"Sigmoid\"\n"
+					"  bottom: \"ip#id#\"\n"
+					"  top: \"ip#id#s\"\n"
+					"}\n");
+
+}
+
+string CreateDropStr()
+{
+	return string(	"layer {\n"
+					"  name: \"drop#id#\"\n"
+					"  type: \"Dropout\"\n"
+					"  bottom: \"ip#id#s\"\n"
+					"  top: \"ip#id#s\"\n"
+					"  dropout_param {\n"
+					"    dropout_ratio: #drop_rate#\n"
+					"  }\n"
+					"  include {\n"
+					"    phase: TRAIN\n"
+					"  }\n"
+					"}\n");
+
+
+}
+
+string AddSoftmaxAndAccuracyStr (int prev_id, int& layers_so_far )
+{
+	string modi = 
+		"layer {\n"
+		"  name: \"loss\"\n"
+		"  type: \"SoftmaxWithLoss\"\n"
+		"  bottom: \"ip#0#s\"\n"
+		"  bottom: \"label\"\n"
+		"  top: \"sm-loss\"\n"
+		"}\n"
+		"layer {\n"
+		"  name: \"accuracy\"\n"
+		"  type: \"Accuracy\"\n"
+		"  bottom: \"ip#0#s\"\n"
+		"  bottom: \"label\"\n"
+		"  top: \"accuracy\"\n"
+		"}\n";
+
+	string sid = boost::lexical_cast<string>(prev_id);
+	modi = boost::replace_all_copy(modi, "#0#", sid);
+	
+	layers_so_far += 2;
+	return modi;
+
+}
+
+string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id, 
+							int num_output, int& layers_so_far, float dropout) 
+{
+	string frame = 
+		"layer {\n"
+		"  name: \"ip#id#\"\n"
+		"  type: \"InnerProduct\"\n"
+		"  bottom: \"#prev_top#\"\n"
+		"  top: \"ip#id#\"\n"
+		"  param {\n"
+		"    lr_mult: 1\n"
+		"  }\n"
+		"  param {\n"
+		"    lr_mult: 2\n"
+		"  }\n"
+		"  inner_product_param {\n"
+		"    num_output: #num_output#\n"
+		"    weight_filler {\n"
+		"      type: \"xavier\"\n"
+		"    }\n"
+		"    bias_filler {\n"
+		"      type: \"constant\"\n"
+		"    }\n"
+		"  }\n"
+		"}\n";
+	string modi =		frame + (b_ReLU ? CreateReLUStr() : "") 
+					+	(b_Sigmoid ? CreateSigmoidStr() : "") 
+					+	(b_drop ? CreateDropStr() : "");
+	
+	string sid = boost::lexical_cast<string>(id);
+	string s_input = string("ip") + boost::lexical_cast<string>(id-1) + "s";
+	if (id == 1) {
+		s_input = "data";
+	}
+	string s_num_output = boost::lexical_cast<string>(num_output);
+	string s_dropout = boost::lexical_cast<string>(dropout);
+	modi = boost::replace_all_copy(modi, "#id#", sid);
+	modi = boost::replace_all_copy(modi, "#num_output#", s_num_output);
+	modi = boost::replace_all_copy(modi, "#drop_rate#", s_dropout);
+	modi = boost::replace_all_copy(modi, "#prev_top#", s_input);
+	
+	layers_so_far += 3;
+	
+	return modi;
+	
+}
+
+void Gen() {
+	
+	string input =	"test_iter: 10000\n"
+					"test_interval: 4000\n"
+					"base_lr: 0.01\n"
+					"lr_policy: \"step\"\n"
+					"gamma: 0.9\n"
+					"stepsize: 100000\n"
+					"display: 2000\n"
+					"max_iter: 500000\n"
+					"momentum: 0.9\n"
+					"weight_decay: 0.0005\n"
+					"snapshot: 100000\n"
+					"snapshot_prefix: \"/devlink/caffe/data/NetGen/GramPosValid/models/g\"\n"
+					"solver_mode: CPU\n";
+	SolverParameter solver_param;
+	bool success = google::protobuf::TextFormat::ParseFromString(input, &solver_param);
+	NetParameter* net_param = solver_param.mutable_train_net_param();
+	string net_def = CreateHD5TrainStr("/devlink/github/test/toys/NetGen/GramPosValid/train_list.txt");
+	int num_layers_so_far = 1;
+	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 1, 10, num_layers_so_far, 0.2f);
+	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 2, 3, num_layers_so_far, 0.2f);
+	net_def += AddInnerProductStr(!cb_ReLU, cb_Sigmoid, !cb_drop, 3, 2, num_layers_so_far, 0.0f);
+	net_def += AddSoftmaxAndAccuracyStr(3, num_layers_so_far);
+	
+	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
+
+	net_param = solver_param.add_test_net_param();
+	net_def = CreateHD5TestStr("/devlink/github/test/toys/NetGen/GramPosValid/test_list.txt");
+	num_layers_so_far = 1;
+	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 1, 10, num_layers_so_far, 0.2f);
+	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 2, 3, num_layers_so_far, 0.2f);
+	net_def += AddInnerProductStr(!cb_ReLU, cb_Sigmoid, !cb_drop, 3, 2, num_layers_so_far, 0.0f);
+	net_def += AddSoftmaxAndAccuracyStr(3, num_layers_so_far);
+	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
+	
+	shared_ptr<caffe::Solver<float> >
+		solver(caffe::GetSolver<float>(solver_param));
+    solver->Solve();
+	
+}
 void NetGen::Init(	vector<shared_ptr<NGNet> >& nets,
 						const string& word_file_name,
 						const string& word_vector_file_name) {
 
+	Gen();
+	return;
+	
 	word_vector_file_name_ = word_vector_file_name;
 	//output_layer_idx_arr_ = vector<int>(5, -1);
 

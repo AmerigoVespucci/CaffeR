@@ -368,19 +368,19 @@ void Solver<Dtype>::Test(const int test_net_id) {
       break;
     }
 
-	if (i==0) {
-		for (int il = 0; il < test_net->layers().size(); il++) {
-			vector<shared_ptr<Blob<Dtype> > >& pBlobs = test_net->layers()[il]->blobs();
-			for (int iw = 0; iw < pBlobs.size(); iw++) {
-				std::cerr << "Weights for layer: " << il << ", iw: " << iw << std::endl;
-				const Dtype * pb = pBlobs[iw]->cpu_data();
-				for (int ib = 0; ib < pBlobs[iw]->count(); ib++) {
-					std::cerr << pb[ib] << ", ";
-				}
-				std::cerr << std::endl;
-			}
-		}
-	}
+//	if (i==0) {
+//		for (int il = 0; il < test_net->layers().size(); il++) {
+//			vector<shared_ptr<Blob<Dtype> > >& pBlobs = test_net->layers()[il]->blobs();
+//			for (int iw = 0; iw < pBlobs.size(); iw++) {
+//				std::cerr << "Weights for layer: " << il << ", iw: " << iw << std::endl;
+//				const Dtype * pb = pBlobs[iw]->cpu_data();
+//				for (int ib = 0; ib < pBlobs[iw]->count(); ib++) {
+//					std::cerr << pb[ib] << ", ";
+//				}
+//				std::cerr << std::endl;
+//			}
+//		}
+//	}
     Dtype iter_loss;
     const vector<Blob<Dtype>*>& result =
         test_net->Forward(bottom_vec, &iter_loss);
