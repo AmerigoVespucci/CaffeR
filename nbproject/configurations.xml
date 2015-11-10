@@ -222,6 +222,7 @@
             <linkerLibLibItem>atlas</linkerLibLibItem>
             <linkerLibLibItem>pthread</linkerLibLibItem>
             <linkerLibLibItem>hdf5_cpp</linkerLibLibItem>
+            <linkerLibLibItem>boost_timer</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
@@ -684,6 +685,7 @@
             <linkerLibLibItem>atlas</linkerLibLibItem>
             <linkerLibLibItem>pthread</linkerLibLibItem>
             <linkerLibLibItem>hdf5_cpp</linkerLibLibItem>
+            <linkerLibLibItem>boost_timer</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>

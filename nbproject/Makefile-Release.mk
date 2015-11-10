@@ -205,7 +205,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-lglog -lgflags -lprotobuf -llmdb -lopencv_core -lopencv_imgproc -lopencv_highgui -lhdf5 -lhdf5_hl -lboost_system -lboost_thread -lleveldb -lsnappy -lm -lstdc++ -lcblas -latlas -lpthread -lhdf5_cpp
+LDLIBSOPTIONS=-lglog -lgflags -lprotobuf -llmdb -lopencv_core -lopencv_imgproc -lopencv_highgui -lhdf5 -lhdf5_hl -lboost_system -lboost_thread -lleveldb -lsnappy -lm -lstdc++ -lcblas -latlas -lpthread -lhdf5_cpp -lboost_timer
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
