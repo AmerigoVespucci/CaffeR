@@ -40,17 +40,34 @@ using std::string;
 typedef unsigned long long u64;
 typedef boost::chrono::duration<double> sec;
 
+SolverAction::Enum MakeSolverStop()  {
+  return SolverAction::STOP;
+}
+
+SolverAction::Enum SolverKeepGoing()  {
+  return SolverAction::NONE;
+}
+
+
 class NetGenSolver : public SGDSolver<float> {
 public:
 	explicit NetGenSolver(const SolverParameter& param)
 		: SGDSolver<float>(param) { Init(); }
 	explicit NetGenSolver(const string& param_file)
 		: SGDSolver<float>(param_file) { Init(); }
+	virtual ~NetGenSolver() {
+		std::cerr << "NetGenSolver deleted\n";
+	}
 	
 	void set_loss_layer(int loss_layer) { loss_layer_ = loss_layer; }
 	void set_run_time(double run_time) {run_time_ = run_time; }
 	float get_avg_loss() { return loss_sum_ / loss_sum_count_; }
 	void get_net(shared_ptr<Net<float> >& net) {net = this->net_; }
+	Net<float> * get_test_net() {return this->test_nets_[0].get(); }
+	void reset_loss_sum() {	SetActionFunction(SolverKeepGoing);
+							timer_.stop(); timer_.start();
+							loss_sum_= 0.0f; loss_sum_count_ = 0.0f; 
+							iter_ = 0; }
 
 protected:
 	int loss_layer_;
@@ -72,6 +89,7 @@ void NetGenSolver::Init()
 	loss_sum_= 0;
 	loss_sum_count_ = 0;
 	run_time_ = 0.0;
+	SetActionFunction(SolverKeepGoing);
 }
  
 void NetGenSolver::ApplyUpdate()
@@ -86,28 +104,29 @@ void NetGenSolver::ApplyUpdate()
 	if (seconds.count() > run_time_) {
 		//iter_ = INT_MAX - 100;
 		requested_early_exit_ = true;
+		SetActionFunction(MakeSolverStop);
 	}
 }
 
 class NGNet {
 public:
 	NGNet(	) {
-		b_self_launched_ = true;
+//		b_self_launched_ = true;
 	}
 	
-	NGNet(	shared_ptr<NGNet> launcher,
-			int mod_layer_idx,
-			int mod_layer_post_idx
-		) {
-		b_self_launched_ = false;
-		launcher_ = launcher;
-		mod_layer_idx_ = mod_layer_idx;
-		mod_layer_post_idx_ = mod_layer_post_idx;
+//	NGNet(	shared_ptr<NGNet> launcher
+//		) {
+//		b_self_launched_ = false;
+//		launcher_ = launcher;
+//	}
+	virtual ~NGNet() {
+		std::cerr << "NGNet destructor called\n";
 	}
 
-	void Gen(int layer_1_nodes, int layer_2_nodes, int& mod_idx, int& mod_post_idx);
+	void Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx);
 	float DoRun(bool bIntersection);
-	void SetWeights();
+	void SetWeights(NGNet* p_ng_net);
+	int get_ipx_layer_idx(int idx_idx) { return ip_layer_idx_arr_[idx_idx]; }
 	
 
 	
@@ -118,10 +137,10 @@ private:
 	shared_ptr<NetGenSolver> solver_;
 	shared_ptr<Net<float> > net_;
 	//shared_ptr<Net<float> > new_net_;
-	bool b_self_launched_;
-	shared_ptr<NGNet> launcher_; // dangerous pointer. For now, promise to use only in Init and never again
-	int mod_layer_idx_;
-	int mod_layer_post_idx_;
+	//bool b_self_launched_;
+	//shared_ptr<NGNet> launcher_; // dangerous pointer. For now, promise to use only in Init and never again
+	vector<int> ip_layer_idx_arr_;
+	int ip_layer_idx_idx_;
 };
 
 class NetGen {
@@ -129,7 +148,7 @@ public:
 	NetGen() {bInit_ = false; }
 
 	void PreInit();
-	void Init(	);
+	void Init();
 
 	bool  Classify();
 
@@ -165,65 +184,67 @@ float rn(void)
   return ((float)zeroone() - 0.5f);
 }
 
-void NGNet::SetWeights()
+void NGNet::SetWeights(NGNet* p_ng_net)
 {
-	if (!b_self_launched_) {
-
-		for (int il = 0; il < launcher_->net_->layers().size(); il++) {
-			Layer<float>* layer = launcher_->net_->layers()[il].get();
-			for (int ib=0; ib < layer->blobs().size(); ib++) {
-				Blob<float>* weights = layer->blobs()[ib].get() ;
-				Blob<float>* new_weights = net_->layers()[il]->blobs()[ib].get() ;
-				if (weights->count() == 0) {
-					continue;
+	Net<float> * launch_net = p_ng_net->net_.get();
+	
+	int mod_idx = ip_layer_idx_arr_[ip_layer_idx_idx_];
+	int mod_post_idx = ip_layer_idx_arr_[ip_layer_idx_idx_+1];
+	for (int il = 0; il < launch_net->layers().size(); il++) {
+		Layer<float>* layer = launch_net->layers()[il].get();
+		for (int ib=0; ib < layer->blobs().size(); ib++) {
+			Blob<float>* weights = layer->blobs()[ib].get() ;
+			Blob<float>* new_weights = net_->layers()[il]->blobs()[ib].get() ;
+			if (weights->count() == 0) {
+				continue;
+			}
+			if (weights->count() == new_weights->count()) {
+				const float * pw = weights->cpu_data();
+				float * pnw = new_weights->mutable_cpu_data();
+				for (int iw = 0; iw < weights->count(); iw++) {
+					pnw[iw] = pw[iw];
 				}
-				if (weights->count() == new_weights->count()) {
-					const float * pw = weights->cpu_data();
-					float * pnw = new_weights->mutable_cpu_data();
-					for (int iw = 0; iw < weights->count(); iw++) {
-						pnw[iw] = pw[iw];
-					}
+			}
+			else if (new_weights->count() == (weights->count() * 2)) {
+				float min_val = FLT_MAX;
+				float max_val = -FLT_MAX;
+				const float * pw = weights->cpu_data();
+				float * pnw = new_weights->mutable_cpu_data();
+				for (int iw = 0; iw < weights->count(); iw++) {
+					float v = pw[iw];
+					if (v > max_val) max_val = v;
+					if (v < min_val) min_val = v;
 				}
-				else if (new_weights->count() == (weights->count() * 2)) {
-					float min_val = FLT_MAX;
-					float max_val = -FLT_MAX;
-					const float * pw = weights->cpu_data();
-					float * pnw = new_weights->mutable_cpu_data();
-					for (int iw = 0; iw < weights->count(); iw++) {
-						float v = pw[iw];
-						if (v > max_val) max_val = v;
-						if (v < min_val) min_val = v;
-					}
-					float cFrac = 0.01f;
-					float rmod = (max_val - min_val) * cFrac;
-					float rtwice = 1.0f;
-					if (il == mod_layer_idx_) {
-						rtwice = 0.5f;
-					}
-					int num_inputs = 1;
-					if (weights->num_axes() > 1) { 
-						num_inputs = weights->shape(1);
-					}
-					int num_outputs = weights->shape(0);
-					for (int jw = 0; jw < num_outputs; jw++) {
-						for (int iw = 0; iw < num_inputs; iw++) {
-							float adj = rn() * rmod;
-							//adj = 0.0f;
-							int jwo = jw * 2;
-							if (il == mod_layer_idx_) {
-								pnw[(jwo * num_inputs) + iw] 
-									= (pw[(jw * num_inputs) + iw] * rtwice) + adj;
-								pnw[((jwo + 1) * num_inputs) + iw] 
-									= (pw[(jw * num_inputs) + iw] * rtwice) - adj;
-							}
-							else if (il == mod_layer_post_idx_) {
-								int ii = (jw * num_inputs) + iw;
-								pnw[ii * 2] = pw[ii];
-								pnw[(ii * 2) + 1] = pw[ii];
-							}
+				float cFrac = 0.01f;
+				float rmod = (max_val - min_val) * cFrac;
+				float rtwice = 1.0f;
+				if (il == mod_idx) {
+					rtwice = 0.5f;
+				}
+				int num_inputs = 1;
+				if (weights->num_axes() > 1) { 
+					num_inputs = weights->shape(1);
+				}
+				int num_outputs = weights->shape(0);
+				for (int jw = 0; jw < num_outputs; jw++) {
+					for (int iw = 0; iw < num_inputs; iw++) {
+						float adj = rn() * rmod;
+						//adj = 0.0f;
+						int jwo = jw * 2;
+						if (il == mod_idx) {
+							pnw[(jwo * num_inputs) + iw] 
+								= (pw[(jw * num_inputs) + iw] * rtwice) + adj;
+							pnw[((jwo + 1) * num_inputs) + iw] 
+								= (pw[(jw * num_inputs) + iw] * rtwice) - adj;
+						}
+						else if (il == mod_post_idx) {
+							int ii = (jw * num_inputs) + iw;
+							pnw[ii * 2] = pw[ii];
+							pnw[(ii * 2) + 1] = pw[ii];
 						}
 					}
 				}
+			}
 //				if (il == 6) {
 //					const float * pw = weights->cpu_data();
 //					std::cerr << "old weights: ";
@@ -239,7 +260,6 @@ void NGNet::SetWeights()
 //					std::cerr << std::endl;
 //				}
 
-			}
 		}
 	}
 }
@@ -420,11 +440,11 @@ string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id,
 	
 }
 
-void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int& mod_idx, int& mod_post_idx ) {
+void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx ) {
 	
 	string input =	
-					"test_iter: 1000\n"
-					"test_interval: 4000\n"
+					"test_iter: 10\n"
+					"test_interval: 10000\n" // pro forma
 					"base_lr: 0.01\n"
 					"lr_policy: \"step\"\n"
 					"gamma: 0.9\n"
@@ -441,10 +461,13 @@ void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int& mod_idx, int& mod_pos
 	NetParameter* net_param = solver_param.mutable_train_net_param();
 	string net_def = CreateHD5TrainStr("/devlink/github/test/toys/NetGen/GramPosValid/train_list.txt");
 	int num_layers_so_far = 1;
-	mod_idx = num_layers_so_far + 1; // extra split layer
+	const int c_num_data_split_layers = 1;
+	ip_layer_idx_arr_.clear();
+	ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 1, layer_1_nodes, num_layers_so_far, 0.2f);
-	mod_post_idx = num_layers_so_far + 1;
+	ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	net_def += AddInnerProductStr(cb_ReLU, !cb_Sigmoid, cb_drop, 2, layer_2_nodes, num_layers_so_far, 0.2f);
+	ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	net_def += AddInnerProductStr(!cb_ReLU, cb_Sigmoid, !cb_drop, 3, 2, num_layers_so_far, 0.0f);
 	int loss_layer = num_layers_so_far + 2 - 1; // two layers of split in this config - 1 for zero based index
 	net_def += AddSoftmaxAndAccuracyStr(3, num_layers_so_far);
@@ -465,9 +488,16 @@ void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int& mod_idx, int& mod_pos
 	solver_.reset(new NetGenSolver(solver_param));
 	solver_->get_net(net_);
 	solver_->set_loss_layer(loss_layer);
+	ip_layer_idx_idx_ = mod_idx_idx;
+	
+//	Net<float> * test_net = solver_->get_test_net();
+//	HDF5DataLayer<float> * data_layer =  dynamic_cast<HDF5DataLayer<float>*>(test_net->layers()[0].get());
+//	data_layer->
+	
 }
 
 float NGNet::DoRun(bool bIntersection) {
+	solver_->reset_loss_sum();
 	const double c_highway_run_time = 60.0;
 	const double c_intersection_run_time = 30.0;
 	double run_time = c_highway_run_time;
@@ -476,27 +506,105 @@ float NGNet::DoRun(bool bIntersection) {
 	}
 	solver_->set_run_time(run_time);
     solver_->Solve();
-	float loss = solver_->get_avg_loss();
-	return loss;
+	//float loss = solver_->get_avg_loss();
+	float loss = 0.0f;
+	Net<float> * test_net = solver_->get_test_net();
+	vector<Blob<float>*> bottom_vec;
+	int num_tests = 100000;
+	LOG(INFO) << "Testing " << num_tests << " records. \n";
+	for (int it = 0; it < num_tests; it++) {
+		float iter_loss;
+		test_net->Forward(bottom_vec, &iter_loss);
+		loss += iter_loss;
+	}
+	LOG(INFO) << "Testing done. \n";
+	
+	return loss / (float)num_tests;
 	
 }
-void NetGen::Init(	) {
+
+enum ModAction {
+	ModActionDoubleLayer1,
+	ModActionDoubleLayer2,
+	NumModActions 
+};
+void NetGen::Init() {
 
 //	for (int ig = 0; ig < nets.size(); ig++) {
 //		NGNet * net = nets[ig].get();
 //	}
 	
-	int mod_idx, mod_post_idx;
+	vector<int> ip_layer_idx_arr;
+	int layer_1_nodes = 10;
+	int layer_2_nodes = 3;
 	shared_ptr<NGNet> ng_net(new NGNet());
-	ng_net->Gen(10, 3, mod_idx, mod_post_idx);
-	float loss_1 = ng_net->DoRun(false);
+	const int c_num_to_test = 1;
+	const int c_max_fails = 10;
+	ng_net->Gen(layer_1_nodes, layer_2_nodes, -1);
+	int num_fails = 0;
+	while(true) {
+		float loss_highway = ng_net->DoRun(false);
 	
-	shared_ptr<NGNet> ng_net_2(new NGNet(ng_net, mod_idx, mod_post_idx));
-	ng_net_2->Gen(20, 3, mod_idx, mod_post_idx);
-	ng_net_2->SetWeights();
-	float loss_2 = ng_net_2->DoRun(true);
+		shared_ptr<NGNet> ng_net_better;
+		ModAction better_action;
+		bool b_found_one_improvement = false;
+		float loss_intersection_change;
+		vector<pair<int, ModAction> > phases;
+		for (int i_phase = 0; i_phase < NumModActions; i_phase++) {
+			phases.push_back(make_pair(rand(), (ModAction)i_phase));
+		}
+		std::sort(phases.begin(), phases.end());
+		for (int ima = 0; ima < c_num_to_test; ima++) {
+			shared_ptr<NGNet> ng_net_2;
+			ModAction mod_action = phases[ima].second;
+			switch(mod_action) {
+				case ModActionDoubleLayer1:
+					std::cerr << "selecting double layer 1\n";
+					ng_net_2.reset(new NGNet());
+					ng_net_2->Gen(layer_1_nodes * 2, layer_2_nodes, 0);
+					break;
+				case ModActionDoubleLayer2:
+					std::cerr << "selecting double layer 2\n";
+					ng_net_2.reset(new NGNet());
+					ng_net_2->Gen(layer_1_nodes, layer_2_nodes * 2, 1);
+			}
+			ng_net_2->SetWeights(ng_net.get());
+			loss_intersection_change = ng_net_2->DoRun(true);
+			std::cerr << "change loss went from " << loss_highway << " to " << loss_intersection_change << ". \n";
+			if (loss_highway > loss_intersection_change) {
+				//ng_net.reset(ng_net_2.get());
+				b_found_one_improvement = true;
+				ng_net_better = ng_net_2;
+				better_action = mod_action;
+			}
+		} // end pahse loop
+		
+		float loss_intersection_continue = ng_net->DoRun(true);
+		std::cerr << "continue loss went from " << loss_highway << " to " << loss_intersection_continue << ". \n";
+		if (b_found_one_improvement && (loss_intersection_change < loss_intersection_continue)) {
+			num_fails = 0;
+			std::cerr << "upgrading\n";
+			switch(better_action) {
+				case ModActionDoubleLayer1:
+					layer_1_nodes *= 2;
+					break;
+				case ModActionDoubleLayer2:
+					layer_2_nodes *= 2;
+					break;
+			}			
+			ng_net = ng_net_better;
+		}
+		else if (!b_found_one_improvement && (loss_intersection_continue > loss_highway) ) {
+			if (num_fails >= c_max_fails) {
+				std::cerr << "Optimiztion complete. No better option\n";
+				break;
+			}
+			num_fails++;
+			std::cerr << "Failed to improve, num fails is now " << num_fails << std::endl;
+		}
+		// third, default option is to keep going with the current net
+	}
 	
-	std::cerr << "loss went from " << loss_1 << " to " << loss_2 << ". \n";
 	
 	bInit_ = true;
 
@@ -539,10 +647,8 @@ int main(int argc, char** argv) {
 
 	NetGen generator;
 	vector<shared_ptr<NGNet> > nets;
-//	nets.push_back(shared_ptr<NGNet>(new NGNet()));
-//	nets.push_back(shared_ptr<NGNet>(new NGNet(	nets[0])));
-
 	generator.Init();
+
 	
 }
 #endif // CAFFE_MULTINET_MAIN

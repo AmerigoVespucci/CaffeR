@@ -652,9 +652,8 @@
             <pElem>.</pElem>
             <pElem>include</pElem>
           </incDir>
-          <commandLine>-pthread -fPIC</commandLine>
           <preprocessorList>
-            <Elem>CAFFE_COMPOSE_MAIN</Elem>
+            <Elem>CAFFE_NET_GEN_MAIN</Elem>
             <Elem>CPU_ONLY</Elem>
           </preprocessorList>
         </ccTool>
