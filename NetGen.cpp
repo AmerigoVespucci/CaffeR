@@ -123,7 +123,7 @@ public:
 		std::cerr << "NGNet destructor called\n";
 	}
 
-	void Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx);
+	void Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx, float lr);
 	float DoRun(bool bIntersection);
 	void SetWeights(NGNet* p_ng_net);
 	int get_ipx_layer_idx(int idx_idx) { return ip_layer_idx_arr_[idx_idx]; }
@@ -188,8 +188,8 @@ void NGNet::SetWeights(NGNet* p_ng_net)
 {
 	Net<float> * launch_net = p_ng_net->net_.get();
 	
-	int mod_idx = ip_layer_idx_arr_[ip_layer_idx_idx_];
-	int mod_post_idx = ip_layer_idx_arr_[ip_layer_idx_idx_+1];
+	int mod_idx = ((ip_layer_idx_idx_ > 0) ? ip_layer_idx_arr_[ip_layer_idx_idx_] : -1);
+	int mod_post_idx = ((ip_layer_idx_idx_) ? ip_layer_idx_arr_[ip_layer_idx_idx_+1] : -1);
 	for (int il = 0; il < launch_net->layers().size(); il++) {
 		Layer<float>* layer = launch_net->layers()[il].get();
 		for (int ib=0; ib < layer->blobs().size(); ib++) {
@@ -440,12 +440,12 @@ string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id,
 	
 }
 
-void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx ) {
-	
-	string input =	
+string CreateSolverParamStr( float lr)
+{
+	string modi =	
 					"test_iter: 10\n"
 					"test_interval: 10000\n" // pro forma
-					"base_lr: 0.01\n"
+					"base_lr: #lr#\n"
 					"lr_policy: \"step\"\n"
 					"gamma: 0.9\n"
 					"stepsize: 100000\n"
@@ -456,8 +456,18 @@ void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx ) {
 					"snapshot: 100000\n"
 					"snapshot_prefix: \"/devlink/caffe/data/NetGen/GramPosValid/models/g\"\n"
 					"solver_mode: CPU\n";
+
+	string s_lr = boost::lexical_cast<string>(lr);
+	modi = boost::replace_all_copy(modi, "#lr#", s_lr);
+	return modi;
+}
+
+
+void NGNet::Gen(int layer_1_nodes, int layer_2_nodes, int mod_idx_idx, float lr ) {
+	
+	string solver_params_str =	CreateSolverParamStr(lr);
 	SolverParameter solver_param;
-	bool success = google::protobuf::TextFormat::ParseFromString(input, &solver_param);
+	bool success = google::protobuf::TextFormat::ParseFromString(solver_params_str, &solver_param);
 	NetParameter* net_param = solver_param.mutable_train_net_param();
 	string net_def = CreateHD5TrainStr("/devlink/github/test/toys/NetGen/GramPosValid/train_list.txt");
 	int num_layers_so_far = 1;
@@ -526,6 +536,8 @@ float NGNet::DoRun(bool bIntersection) {
 enum ModAction {
 	ModActionDoubleLayer1,
 	ModActionDoubleLayer2,
+	ModActionDoubleLR,
+	ModActionHalfLR,
 	NumModActions 
 };
 void NetGen::Init() {
@@ -537,11 +549,14 @@ void NetGen::Init() {
 	vector<int> ip_layer_idx_arr;
 	int layer_1_nodes = 10;
 	int layer_2_nodes = 3;
+	float lr = 0.05;
 	shared_ptr<NGNet> ng_net(new NGNet());
-	const int c_num_to_test = 1;
+	const int c_num_to_test = 3;
 	const int c_max_fails = 10;
-	ng_net->Gen(layer_1_nodes, layer_2_nodes, -1);
+	ng_net->Gen(layer_1_nodes, layer_2_nodes, -1, lr);
 	int num_fails = 0;
+	float best_loss;
+	double time_best_loss;
 	while(true) {
 		float loss_highway = ng_net->DoRun(false);
 	
@@ -561,12 +576,23 @@ void NetGen::Init() {
 				case ModActionDoubleLayer1:
 					std::cerr << "selecting double layer 1\n";
 					ng_net_2.reset(new NGNet());
-					ng_net_2->Gen(layer_1_nodes * 2, layer_2_nodes, 0);
+					ng_net_2->Gen(layer_1_nodes * 2, layer_2_nodes, 0, lr);
 					break;
 				case ModActionDoubleLayer2:
 					std::cerr << "selecting double layer 2\n";
 					ng_net_2.reset(new NGNet());
-					ng_net_2->Gen(layer_1_nodes, layer_2_nodes * 2, 1);
+					ng_net_2->Gen(layer_1_nodes, layer_2_nodes * 2, 1, lr);
+					break;
+				case ModActionDoubleLR:
+					std::cerr << "selecting double learning rate\n";
+					ng_net_2.reset(new NGNet());
+					ng_net_2->Gen(layer_1_nodes, layer_2_nodes, -1, lr * 2.0f);
+					break;
+				case ModActionHalfLR:
+					std::cerr << "selecting half learning rate\n";
+					ng_net_2.reset(new NGNet());
+					ng_net_2->Gen(layer_1_nodes, layer_2_nodes, -1, lr * 0.5f);
+					break;
 			}
 			ng_net_2->SetWeights(ng_net.get());
 			loss_intersection_change = ng_net_2->DoRun(true);
@@ -583,13 +609,22 @@ void NetGen::Init() {
 		std::cerr << "continue loss went from " << loss_highway << " to " << loss_intersection_continue << ". \n";
 		if (b_found_one_improvement && (loss_intersection_change < loss_intersection_continue)) {
 			num_fails = 0;
-			std::cerr << "upgrading\n";
 			switch(better_action) {
 				case ModActionDoubleLayer1:
 					layer_1_nodes *= 2;
+					std::cerr << "upgrading layer 1 nodes to " << layer_1_nodes << "\n";
 					break;
 				case ModActionDoubleLayer2:
 					layer_2_nodes *= 2;
+					std::cerr << "upgrading layer 2 nodes to " << layer_2_nodes << "\n";
+					break;
+				case ModActionDoubleLR:
+					lr *= 2.0f;
+					std::cerr << "upgrading by double learning rate to " << lr << "\n";
+					break;
+				case ModActionHalfLR:
+					lr *= 0.5f;
+					std::cerr << "upgrading by half learning rate to " << lr << "\n";
 					break;
 			}			
 			ng_net = ng_net_better;
