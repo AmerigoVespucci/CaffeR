@@ -134,7 +134,9 @@ public:
 	float TestOnly();
 	void CopyTrainWeightsToTestNet();
 	void SetWeights(NGNet* p_ng_net);
+	void CopyWeightsAndAddDupLayer(NGNet* p_ng_net, int i_dup_layer);
 	int get_ipx_layer_idx(int idx_idx) { return ip_layer_idx_arr_[idx_idx]; }
+	void ShakeupWeights();
 	void MakeLiveSnapshot(LiveSnapshot& net_snap);
 	void SetWeightsFromLiveSnapshot(LiveSnapshot& net_snap);
 	void get_first_and_last_node_sizes(int& first_layer_size, int& last_layer_size);
@@ -191,6 +193,66 @@ float rn(void)
   return ((float)zeroone() - 0.5f);
 }
 
+void NGNet::CopyWeightsAndAddDupLayer(NGNet* p_ng_net, int i_dup_layer) {
+	// when we duplicate there are two layers with the same num_output = output nodes
+	// the first is left untouched w.r.t. weights and the second starts as an identity matrix
+	// with some random perturbation
+	Net<float> * src_net = p_ng_net->net_.get();
+	
+	for (int il = 0; il < ip_layer_idx_arr_.size(); il++) {
+		if (il == i_dup_layer) {
+			// At first I thought that I would need to add initialize all non-diagonal weights to some
+			// small value off zero - including the biases. I was afraid they would never get 
+			// the gradients to move off zero. I have determined empirically that there is no need
+			int mod_idx = ip_layer_idx_arr_[il];
+			Layer<float>* layer = net_->layers()[mod_idx].get();
+			for (int ib=0; ib < layer->blobs().size(); ib++) {
+				Blob<float>* weights = layer->blobs()[ib].get() ;
+				if (weights->count() == 0) {
+					continue;
+				}
+				float * pw = weights->mutable_cpu_data();
+				int num_inputs = 1;
+				if (weights->num_axes() == 1) { // bias
+					for (int iw = 0; iw < weights->count(); iw++) {
+						pw[iw] = 0.0f;
+					}
+				}
+				else {
+					num_inputs = weights->shape(1);
+					int num_outputs = weights->shape(0);
+					CHECK_EQ(num_inputs, num_outputs) << "The number of inputs and outputs to a duplicated layer should be equal";
+					for (int jw = 0; jw < num_outputs; jw+=2) {
+						for (int iw = 0; iw < num_inputs; iw++) {
+							pw[(jw * num_inputs) + iw] = ((iw == jw) ? 1.0f : 0.0f);
+						}
+					}
+				}
+			}
+		}
+		else {
+			int src_il = il;
+			if (il > i_dup_layer) {
+				src_il = il - 1;
+			}
+			int src_mod_idx = p_ng_net->ip_layer_idx_arr_[src_il];
+			int mod_idx = ip_layer_idx_arr_[il];
+			Layer<float>* layer = net_->layers()[mod_idx].get();
+			Layer<float>* src_layer = src_net->layers()[src_mod_idx].get();
+			for (int ib=0; ib < layer->blobs().size(); ib++) {
+				Blob<float>* weights = layer->blobs()[ib].get() ;
+				Blob<float>* src_weights = src_layer->blobs()[ib].get() ;
+				if (weights->count() > 0) {
+					const float * psw = src_weights->cpu_data();
+					float * pw = weights->mutable_cpu_data();
+					for (int iw = 0; iw < weights->count(); iw++) {
+						pw[iw] = psw[iw];
+					}
+				}
+			}
+		}
+	}
+}
 
 void NGNet::SetWeights(NGNet* p_ng_net)
 {
@@ -261,10 +323,6 @@ void NGNet::SetWeights(NGNet* p_ng_net)
 				// so the activation of the combined nodes will be higher 
 				// however we have to double the weights on the mod_idx
 				// because we don't want the combination of weights but their average
-//				float rhalf = 1.0f;
-//				if (il == mod_idx) {
-//					rhalf = 2.0f; // half, that is, as many
-//				}
 				int num_inputs = 1;
 				if (weights->num_axes() > 1) { 
 					num_inputs = weights->shape(1);
@@ -314,6 +372,44 @@ void NGNet::SetWeights(NGNet* p_ng_net)
 	}
 }
 
+void NGNet::ShakeupWeights()
+{
+	float c_max_shake = 0.5f; 
+	for (int il = 0; il < net_->layers().size(); il++) {
+		Layer<float>* layer = net_->layers()[il].get();
+		for (int ib=0; ib < layer->blobs().size(); ib++) {
+			Blob<float>* weights = layer->blobs()[ib].get() ;
+			if (weights->count() > 0) {
+				float * pw = weights->mutable_cpu_data();
+				float max_val = -FLT_MAX;
+				float min_val = FLT_MAX;
+				for (int iw = 0; iw < weights->count(); iw++) {
+					float val = pw[iw];
+					float adj = val * c_max_shake * rn();
+					pw[iw] = val + adj ;
+					if (val > max_val) {
+						max_val = val;
+					}
+					if (val < min_val) {
+						min_val = val;
+					}
+				}
+				for (int iw = 0; iw < weights->count(); iw++) {
+					if ((rand() % 30) == 0) {
+						pw[iw] = max_val ;
+					}
+					else if ((rand() % 30) == 0) {
+						pw[iw] = min_val ;
+					}
+					else if ((rand() % 30) == 0) {
+						pw[iw] = 0.0f ;
+					}
+				}
+			}
+		}
+	}
+	
+}
 
 
 void NetGen::PreInit()
@@ -519,7 +615,7 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
 	ip_layer_idx_arr_.clear();
 	ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	for (int in = 0; in < num_nodes_in_layer.size(); in++) {
-//#pragma message "don't leave relu off"		
+//#pragma message "don't leave relu off on both tain and test"		
 		net_def += AddInnerProductStr(	cb_ReLU, !cb_Sigmoid, cb_drop, in+1, 
 										num_nodes_in_layer[in], num_layers_so_far, 
 										c_drop_rate);
@@ -529,7 +625,7 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
 									num_nodes_in_layer.size() + 1, 2, 
 									num_layers_so_far, 0.0f);
 	int loss_layer = num_layers_so_far + 2 - 1; // two layers of split in this config - 1 for zero based index
-	net_def += AddSoftmaxAndAccuracyStr(3, num_layers_so_far);
+	net_def += AddSoftmaxAndAccuracyStr(num_nodes_in_layer.size() + 1, num_layers_so_far);
 	
 	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
 
@@ -544,7 +640,7 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
 	net_def += AddInnerProductStr(	!cb_ReLU, cb_Sigmoid, !cb_drop, 
 									num_nodes_in_layer.size()+1, 2, num_layers_so_far, 
 									0.0f);
-	net_def += AddSoftmaxAndAccuracyStr(3, num_layers_so_far);
+	net_def += AddSoftmaxAndAccuracyStr(num_nodes_in_layer.size() + 1, num_layers_so_far);
 	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
 	
 //	shared_ptr<caffe::Solver<float> >
@@ -581,6 +677,21 @@ float NGNet::DoRun(bool bIntersection, double growth_factor) {
 	solver_->set_run_time(run_time);
     solver_->Solve();
 	//float loss = solver_->get_avg_loss();
+
+//			{
+//				// test code
+//				int mod_idx = ip_layer_idx_arr_[1];
+//				Layer<float>* layer = net_->layers()[mod_idx].get();
+//				for (int ib=0; ib < layer->blobs().size(); ib++) {
+//					Blob<float>* weights = layer->blobs()[ib].get() ;
+//					const float * pw = weights->cpu_data();
+//					std::cerr << "weights: ";
+//					for (int iw = 0; iw < weights->count(); iw++) {
+//						std::cerr << pw[iw] << ", ";
+//					}
+//					std::cerr << std::endl;
+//				}
+//			}
 	return TestOnly();
 	
 }
@@ -657,11 +768,9 @@ enum ModAction {
 	NumModActions 
 };
 void NetGen::Init() {
-
-//	for (int ig = 0; ig < nets.size(); ig++) {
-//		NGNet * net = nets[ig].get();
-//	}
 	
+
+	int num_nodes_in_last_layer = 2; // bring this in as a parameter instead
 	vector<int> ip_layer_idx_arr;
 	vector<int> num_nodes_in_layer;
 	num_nodes_in_layer.push_back(10);
@@ -682,6 +791,7 @@ void NetGen::Init() {
 	float best_loss = FLT_MAX;
 	//boost::timer::cpu_timer progress_timer;
 	const int max_no_progress = 90;
+	bool b_test_once = true;
 
 	while(true) {
 		int num_weights_total = (first_layer_size * num_nodes_in_layer[0]) ;
@@ -695,8 +805,20 @@ void NetGen::Init() {
 								/ c_base_num_weights;
 		
 		float loss_highway = ng_net->DoRun(false, growth_factor);
+		if (b_test_once)
+		{
+			// test code
+			//b_test_once = false;
+			if ((rand() % 10) == 0) {
+				float loss_1 = ng_net->TestOnly();
+				ng_net->ShakeupWeights();
+				float loss_2 = ng_net->TestOnly();
+				std::cerr << "loss on shakeup went from " << loss_1 << " to " << loss_2 << ".\n";
+			}
+		}
 //		{
 //			// test code
+//			// code doubles a layer and then halves it to check that the result is more or less the same as at start
 //			vector<int> num_nodes_in_layer_mod = num_nodes_in_layer;
 //			shared_ptr<NGNet> ng_net_2;
 //			ng_net_2.reset(new NGNet());
@@ -776,13 +898,13 @@ void NetGen::Init() {
 					break;
 			}
 			ng_net_2->SetWeights(ng_net.get());
-			{
-				// test code
-				ng_net_2->CopyTrainWeightsToTestNet();
-				float loss_1 = ng_net->TestOnly();
-				float loss_2 = ng_net_2->TestOnly();
-				std::cerr << "loss on weights copy (with random) went from " << loss_1 << " to " << loss_2 << ".\n";
-			}
+//			{
+//				// test code
+//				ng_net_2->CopyTrainWeightsToTestNet();
+//				float loss_1 = ng_net->TestOnly();
+//				float loss_2 = ng_net_2->TestOnly();
+//				std::cerr << "loss on weights copy (with random) went from " << loss_1 << " to " << loss_2 << ".\n";
+//			}
 			loss_intersection_change = ng_net_2->DoRun(true, growth_factor); // there are more nodes here, so growth_factor could change but not good for comparison
 			std::cerr << "change loss went from " << loss_highway << " to " << loss_intersection_change << ". \n";
 			if (loss_highway > loss_intersection_change) {
@@ -862,10 +984,41 @@ void NetGen::Init() {
 		if ((num_fails % 20) == 0) {
 			lr = c_start_lr;
 			std::cerr << "Additional step to get out of mess. Going back to snapshot of last record low\n";
+			lr = snap.lr; 
+			num_nodes_in_layer = snap.num_nodes_in_layer;
 			ng_net.reset(new NGNet());
-			ng_net->Gen(snap.num_nodes_in_layer, -1, snap.lr);
+			ng_net->Gen(num_nodes_in_layer, -1, lr);
 			ng_net->SetWeightsFromLiveSnapshot(snap);
 			ng_net->CopyTrainWeightsToTestNet();
+		}
+		if (num_fails  == 30) {
+			// carefull with ifs and elses here. You don't want to create an impossibe if
+			// Make sure that there is a reset to best live snapshot on a lower num_fails value
+			// than the one used to select this option. 
+			vector<int> num_nodes_in_layer_mod = num_nodes_in_layer;
+			// you can duplicate the last layer, but num_nodes_in_layer only refers to the middle layers, so +1
+			int i_layer_duplicate = rand() % (num_nodes_in_layer_mod.size() + 1); 
+			std::cerr << "duplicating layer " << i_layer_duplicate << "\n";
+			if (i_layer_duplicate < num_nodes_in_layer_mod.size()) {
+				vector<int>::iterator itn = num_nodes_in_layer_mod.begin() + i_layer_duplicate;
+				num_nodes_in_layer_mod.insert(itn, num_nodes_in_layer_mod[i_layer_duplicate]);
+			}
+			else {
+				num_nodes_in_layer_mod.push_back(num_nodes_in_last_layer);
+			}
+			shared_ptr<NGNet> ng_net_2;
+			ng_net_2.reset(new NGNet());
+			ng_net_2->Gen(num_nodes_in_layer_mod, -1, lr);
+			ng_net_2->CopyWeightsAndAddDupLayer(ng_net.get(), i_layer_duplicate+1); // index of *duplicated* layer
+			{
+				// test code
+				ng_net_2->CopyTrainWeightsToTestNet();
+				float loss_1 = ng_net->TestOnly();
+				float loss_2 = ng_net_2->TestOnly();
+				std::cerr << "loss on duplicating layer went from " << loss_1 << " to " << loss_2 << ".\n";
+			}
+			ng_net = ng_net_2;
+			num_nodes_in_layer = num_nodes_in_layer_mod;
 		}
 		if (num_fails >= max_no_progress) {
 			std::cerr << "Optimiztion complete. No better option\n";
