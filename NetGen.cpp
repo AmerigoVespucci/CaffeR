@@ -30,6 +30,8 @@
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"
 
+#include "GenSeed.pb.h"
+
 #ifndef H5_NO_NAMESPACE
     using namespace H5;
 #endif
@@ -129,7 +131,7 @@ public:
 //		std::cerr << "NGNet destructor called\n";
 //	}
 
-	void Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr);
+	void Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr, CaffeGenSeed * config);
 	float DoRun(bool bIntersection, double growth_factor);
 	float TestOnly();
 	void CopyTrainWeightsToTestNet();
@@ -151,11 +153,19 @@ private:
 	shared_ptr<Net<float> > net_;
 	vector<int> ip_layer_idx_arr_;
 	int ip_layer_idx_idx_;
+	int num_test_cases_;
+	string output_model_filename_;
+	string output_prototxt_filename_;
+	string train_proto_str_;
+	string test_proto_str_;
 };
 
 class NetGen {
 public:
-	NetGen() {bInit_ = false; }
+	NetGen(string config_file_name) {
+		bInit_ = false; 
+		config_file_name_ = config_file_name;
+	}
 
 	void PreInit();
 	void Init();
@@ -178,6 +188,7 @@ private:
 	vector<vector<float> > words_vecs_;
 	string word_vector_file_name_;
 	int words_per_input_;
+	string config_file_name_;
 	
 	int GetClosestWordIndex(vector<float>& VecOfWord, int num_input_vals, 
 							vector<pair<float, int> >& SortedBest,
@@ -507,7 +518,7 @@ string CreateDropStr()
 
 }
 
-string AddSoftmaxAndAccuracyStr (int prev_id, int& layers_so_far )
+string AddSoftmaxAndAccuracyStr (int prev_id, int& layers_so_far, int num_accuracy_candidates)
 {
 	string modi = 
 		"layer {\n"
@@ -523,10 +534,15 @@ string AddSoftmaxAndAccuracyStr (int prev_id, int& layers_so_far )
 		"  bottom: \"ip#0#s\"\n"
 		"  bottom: \"label\"\n"
 		"  top: \"accuracy\"\n"
+		"  accuracy_param {\n"
+		"     top_k: #topk#\n"
+		"  }"
 		"}\n";
 
 	string sid = boost::lexical_cast<string>(prev_id);
 	modi = boost::replace_all_copy(modi, "#0#", sid);
+	string stopk = boost::lexical_cast<string>(num_accuracy_candidates);
+	modi = boost::replace_all_copy(modi, "#topk#", stopk);
 	
 	layers_so_far += 2;
 	return modi;
@@ -595,6 +611,7 @@ string CreateSolverParamStr( float lr)
 					"weight_decay: 0.0005\n"
 					"snapshot: 100000\n"
 					"snapshot_prefix: \"/devlink/caffe/data/NetGen/GramPosValid/models/g\"\n"
+					"snapshot_after_train: false\n"
 					"solver_mode: CPU\n";
 
 	string s_lr = boost::lexical_cast<string>(lr);
@@ -603,34 +620,48 @@ string CreateSolverParamStr( float lr)
 }
 
 
-void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
+void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr, CaffeGenSeed * config) {
 	const float c_drop_rate = 0.2f;
 	string solver_params_str =	CreateSolverParamStr(lr);
 	SolverParameter solver_param;
 	bool success = google::protobuf::TextFormat::ParseFromString(solver_params_str, &solver_param);
 	NetParameter* net_param = solver_param.mutable_train_net_param();
-	string net_def = CreateHD5TrainStr("/devlink/github/test/toys/NetGen/GramPosValid/train_list.txt");
+	string net_def = CreateHD5TrainStr(config->train_list_file_name());
 	int num_layers_so_far = 1;
 	const int c_num_data_split_layers = 1;
 	ip_layer_idx_arr_.clear();
 	ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	for (int in = 0; in < num_nodes_in_layer.size(); in++) {
-//#pragma message "don't leave relu off on both tain and test"		
+//#pragma message "don't leave relu off on both train and test"		
 		net_def += AddInnerProductStr(	cb_ReLU, !cb_Sigmoid, cb_drop, in+1, 
 										num_nodes_in_layer[in], num_layers_so_far, 
 										c_drop_rate);
 		ip_layer_idx_arr_.push_back(num_layers_so_far + c_num_data_split_layers);
 	}
 	net_def += AddInnerProductStr(	!cb_ReLU, cb_Sigmoid, !cb_drop, 
-									num_nodes_in_layer.size() + 1, 2, 
+									num_nodes_in_layer.size() + 1, 
+									config->num_output_nodes(), 
 									num_layers_so_far, 0.0f);
 	int loss_layer = num_layers_so_far + 2 - 1; // two layers of split in this config - 1 for zero based index
-	net_def += AddSoftmaxAndAccuracyStr(num_nodes_in_layer.size() + 1, num_layers_so_far);
-	
+	int num_accuracy_candidates = 1;
+	if (config->has_num_accuracy_candidates()) {
+		num_accuracy_candidates = config->num_accuracy_candidates();
+	}
+	string end_str;
+	switch (config->net_end_type()) {
+		case CaffeGenSeed::END_VALID:
+		case CaffeGenSeed::END_ONE_HOT:
+			end_str = AddSoftmaxAndAccuracyStr(	num_nodes_in_layer.size() + 1, 
+												num_layers_so_far, 
+												num_accuracy_candidates);
+			break;
+	}
+	net_def += end_str;
+	train_proto_str_ = net_def;
 	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
 
 	net_param = solver_param.add_test_net_param();
-	net_def = CreateHD5TestStr("/devlink/github/test/toys/NetGen/GramPosValid/test_list.txt");
+	net_def = CreateHD5TestStr(config->test_list_file_name());
 	num_layers_so_far = 1;
 	for (int in = 0; in < num_nodes_in_layer.size(); in++) {
 		net_def += AddInnerProductStr(	cb_ReLU, !cb_Sigmoid, !cb_drop, in+1, 
@@ -638,9 +669,12 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
 										0.0f);
 	}
 	net_def += AddInnerProductStr(	!cb_ReLU, cb_Sigmoid, !cb_drop, 
-									num_nodes_in_layer.size()+1, 2, num_layers_so_far, 
+									num_nodes_in_layer.size()+1, 
+									config->num_output_nodes(), num_layers_so_far, 
 									0.0f);
-	net_def += AddSoftmaxAndAccuracyStr(num_nodes_in_layer.size() + 1, num_layers_so_far);
+	net_def += end_str;
+
+	test_proto_str_ = net_def;
 	success = google::protobuf::TextFormat::ParseFromString(net_def, net_param);
 	
 //	shared_ptr<caffe::Solver<float> >
@@ -649,6 +683,9 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr ) {
 	solver_->get_net(net_);
 	solver_->set_loss_layer(loss_layer);
 	ip_layer_idx_idx_ = mod_idx_idx;
+	num_test_cases_ = config->num_test_cases();
+	output_model_filename_ = config->model_file_name();
+	output_prototxt_filename_ = config->proto_file_name();
 	
 //	Net<float> * test_net = solver_->get_test_net();
 //	HDF5DataLayer<float> * data_layer =  dynamic_cast<HDF5DataLayer<float>*>(test_net->layers()[0].get());
@@ -700,7 +737,7 @@ float  NGNet::TestOnly() {
 	float loss = 0.0f;
 	Net<float> * test_net = solver_->get_test_net();
 	vector<Blob<float>*> bottom_vec;
-	int num_tests = 121790; // must pull this number out of hd5 test data
+	int num_tests = num_test_cases_; 
 	LOG(INFO) << "Testing " << num_tests << " records. \n";
 	for (int it = 0; it < num_tests; it++) {
 		float iter_loss;
@@ -739,6 +776,18 @@ void NGNet::MakeLiveSnapshot(LiveSnapshot& net_snap) {
 			}
 		}
 	}
+	CopyTrainWeightsToTestNet();
+	LOG(INFO) << "Snapshotting to binary proto file " << output_model_filename_;
+	// N.B. We are sending the test proto
+	Net<float> * test_net = solver_->get_test_net();
+	NetParameter net_param;
+	test_net->ToProto(&net_param, false);
+	WriteProtoToBinaryFile(net_param, output_model_filename_);
+	std::ofstream proto_f(output_prototxt_filename_.c_str());
+	if (proto_f.is_open()) { 
+		proto_f << test_proto_str_; 		
+	}
+
 	
 }
 
@@ -768,9 +817,11 @@ enum ModAction {
 	NumModActions 
 };
 void NetGen::Init() {
-	
+	CaffeGenSeed config;
+	CHECK(ReadProtoFromTextFile(config_file_name_, &config));
+	config.train_list_file_name();
 
-	int num_nodes_in_last_layer = 2; // bring this in as a parameter instead
+	int num_nodes_in_last_layer = config.num_output_nodes(); 
 	vector<int> ip_layer_idx_arr;
 	vector<int> num_nodes_in_layer;
 	num_nodes_in_layer.push_back(10);
@@ -783,7 +834,7 @@ void NetGen::Init() {
 	snap.num_nodes_in_layer = num_nodes_in_layer;
 	shared_ptr<NGNet> ng_net(new NGNet());
 	const int c_num_to_test = 3;
-	ng_net->Gen(num_nodes_in_layer, -1, lr);
+	ng_net->Gen(num_nodes_in_layer, -1, lr, &config);
 	int first_layer_size, last_layer_size;
 	ng_net->get_first_and_last_node_sizes(first_layer_size, last_layer_size);
 	double c_base_num_weights = 1000.0;	// keep at 1000+. Actually a patience param but we cnn set that with the base timing
@@ -809,12 +860,6 @@ void NetGen::Init() {
 		{
 			// test code
 			//b_test_once = false;
-			if ((rand() % 10) == 0) {
-				float loss_1 = ng_net->TestOnly();
-				ng_net->ShakeupWeights();
-				float loss_2 = ng_net->TestOnly();
-				std::cerr << "loss on shakeup went from " << loss_1 << " to " << loss_2 << ".\n";
-			}
 		}
 //		{
 //			// test code
@@ -823,7 +868,7 @@ void NetGen::Init() {
 //			shared_ptr<NGNet> ng_net_2;
 //			ng_net_2.reset(new NGNet());
 //			num_nodes_in_layer_mod[1] *= 2;
-//			ng_net_2->Gen(num_nodes_in_layer_mod, 1, lr);
+//			ng_net_2->Gen(num_nodes_in_layer_mod, 1, lr, &config);
 //			ng_net_2->SetWeights(ng_net.get());
 //			ng_net_2->CopyTrainWeightsToTestNet();
 //			float loss_1 = ng_net->TestOnly();
@@ -831,7 +876,7 @@ void NetGen::Init() {
 //			std::cerr << "loss on weights double went from " << loss_1 << " to " << loss_2 << ".\n";
 //			shared_ptr<NGNet> ng_net_3;
 //			ng_net_3.reset(new NGNet());
-//			ng_net_3->Gen(num_nodes_in_layer, 1, lr);
+//			ng_net_3->Gen(num_nodes_in_layer, 1, lr, &config);
 //			ng_net_3->SetWeights(ng_net_2.get());
 //			ng_net_3->CopyTrainWeightsToTestNet();
 //			float loss_3 = ng_net_2->TestOnly();
@@ -873,7 +918,7 @@ void NetGen::Init() {
 					std::cerr << "trying double layer " << mod_action_param + 1 << "\n";
 					ng_net_2.reset(new NGNet());
 					num_nodes_in_layer_mod[mod_action_param] *= 2;
-					ng_net_2->Gen(num_nodes_in_layer_mod, mod_action_param, lr);
+					ng_net_2->Gen(num_nodes_in_layer_mod, mod_action_param, lr, &config);
 					break;
 				case ModActionHalfLayer:
 					if ((num_nodes_in_layer_mod[mod_action_param] % 2) == 1) {
@@ -883,18 +928,18 @@ void NetGen::Init() {
 					std::cerr << "trying halving layer " << mod_action_param + 1 << "\n";
 					ng_net_2.reset(new NGNet());
 					num_nodes_in_layer_mod[mod_action_param] /= 2;
-					ng_net_2->Gen(num_nodes_in_layer_mod, mod_action_param, lr);
+					ng_net_2->Gen(num_nodes_in_layer_mod, mod_action_param, lr, &config);
 					break;
 				case ModActionDoubleLR:
 					std::cerr << "trying increase learning rate\n";
 					ng_net_2.reset(new NGNet());
-					ng_net_2->Gen(num_nodes_in_layer, -1, lr * c_lr_mod_factor);
+					ng_net_2->Gen(num_nodes_in_layer, -1, lr * c_lr_mod_factor, &config);
 					break;
 				case ModActionHalfLR:
 					//if (lr < 0.02f) continue; // experiment limiting lr halving
 					std::cerr << "trying decrease learning rate\n";
 					ng_net_2.reset(new NGNet());
-					ng_net_2->Gen(num_nodes_in_layer, -1, lr / c_lr_mod_factor);
+					ng_net_2->Gen(num_nodes_in_layer, -1, lr / c_lr_mod_factor, &config);
 					break;
 			}
 			ng_net_2->SetWeights(ng_net.get());
@@ -977,24 +1022,39 @@ void NetGen::Init() {
 		if ((num_fails % 3) == 0) {
 			std::cerr << "We have now had " << num_fails << " attempts without improvement\n";
 		}
-		if ((num_fails % 10) == 0) {
+		if ((num_fails % 9) == 0) {
 			lr = c_start_lr;
-			std::cerr << "Now up to " << num_fails << " attempts without improvement. Resetting learning rate to " << lr << "\n";
+			std::cerr << "Additional step. Resetting learning rate to " << lr << "\n";
 		}
-		if ((num_fails % 20) == 0) {
+		if ((num_fails % 15) == 0) {
 			lr = c_start_lr;
 			std::cerr << "Additional step to get out of mess. Going back to snapshot of last record low\n";
 			lr = snap.lr; 
 			num_nodes_in_layer = snap.num_nodes_in_layer;
 			ng_net.reset(new NGNet());
-			ng_net->Gen(num_nodes_in_layer, -1, lr);
+			ng_net->Gen(num_nodes_in_layer, -1, lr, &config);
 			ng_net->SetWeightsFromLiveSnapshot(snap);
 			ng_net->CopyTrainWeightsToTestNet();
+		}
+		if (num_fails  == 21) {
+			float loss_1 = ng_net->TestOnly();
+			ng_net->ShakeupWeights();
+			float loss_2 = ng_net->TestOnly();
+			std::cerr << "Additional step. Random Shakeup. Loss on shakeup went from " << loss_1 << " to " << loss_2 << ".\n";
 		}
 		if (num_fails  == 30) {
 			// carefull with ifs and elses here. You don't want to create an impossibe if
 			// Make sure that there is a reset to best live snapshot on a lower num_fails value
 			// than the one used to select this option. 
+			std::cerr << "We seem to be at a stable minimum, attempting to add an extra layer to the net\n";
+			// before adding layer, make the starting point a snapshot of the best low so far
+			// floowing code commented out on assumption that new layer is a multiple of return to snapshot
+//			lr = snap.lr; 
+//			num_nodes_in_layer = snap.num_nodes_in_layer;
+//			ng_net.reset(new NGNet());
+//			ng_net->Gen(num_nodes_in_layer, -1, lr, &config);
+//			ng_net->SetWeightsFromLiveSnapshot(snap);
+//			ng_net->CopyTrainWeightsToTestNet();
 			vector<int> num_nodes_in_layer_mod = num_nodes_in_layer;
 			// you can duplicate the last layer, but num_nodes_in_layer only refers to the middle layers, so +1
 			int i_layer_duplicate = rand() % (num_nodes_in_layer_mod.size() + 1); 
@@ -1008,7 +1068,7 @@ void NetGen::Init() {
 			}
 			shared_ptr<NGNet> ng_net_2;
 			ng_net_2.reset(new NGNet());
-			ng_net_2->Gen(num_nodes_in_layer_mod, -1, lr);
+			ng_net_2->Gen(num_nodes_in_layer_mod, -1, lr, &config);
 			ng_net_2->CopyWeightsAndAddDupLayer(ng_net.get(), i_layer_duplicate+1); // index of *duplicated* layer
 			{
 				// test code
@@ -1062,7 +1122,7 @@ int main(int argc, char** argv) {
 	int input_data_idx = 0;
 	int input_label_idx = 1;
 
-	NetGen generator;
+	NetGen generator("/devlink/caffe/data/NetGen/WordToPos/data/config.prototxt");
 	vector<shared_ptr<NGNet> > nets;
 	generator.Init();
 

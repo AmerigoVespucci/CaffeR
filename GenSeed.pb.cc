@@ -33,7 +33,7 @@ void protobuf_AssignDesc_GenSeed_2eproto() {
       "GenSeed.proto");
   GOOGLE_CHECK(file != NULL);
   CaffeGenSeed_descriptor_ = file->message_type(0);
-  static const int CaffeGenSeed_offsets_[7] = {
+  static const int CaffeGenSeed_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, test_list_file_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, train_list_file_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, num_test_cases_),
@@ -41,6 +41,7 @@ void protobuf_AssignDesc_GenSeed_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, num_output_nodes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, proto_file_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, model_file_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CaffeGenSeed, num_accuracy_candidates_),
   };
   CaffeGenSeed_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -84,14 +85,15 @@ void protobuf_AddDesc_GenSeed_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\rGenSeed.proto\"\236\002\n\014CaffeGenSeed\022\033\n\023test"
+    "\n\rGenSeed.proto\"\277\002\n\014CaffeGenSeed\022\033\n\023test"
     "_list_file_name\030\001 \002(\t\022\034\n\024train_list_file"
     "_name\030\002 \002(\t\022\026\n\016num_test_cases\030\003 \002(\005\022.\n\014n"
     "et_end_type\030\004 \002(\0162\030.CaffeGenSeed.NetEndT"
     "ype\022\030\n\020num_output_nodes\030\005 \001(\005\022\027\n\017proto_f"
-    "ile_name\030\006 \002(\t\022\027\n\017model_file_name\030\007 \002(\t\""
-    "\?\n\nNetEndType\022\r\n\tEND_VALID\020\001\022\017\n\013END_ONE_"
-    "HOT\020\002\022\021\n\rEND_MULTI_HOT\020\003", 304);
+    "ile_name\030\006 \002(\t\022\027\n\017model_file_name\030\007 \002(\t\022"
+    "\037\n\027num_accuracy_candidates\030\010 \001(\005\"\?\n\nNetE"
+    "ndType\022\r\n\tEND_VALID\020\001\022\017\n\013END_ONE_HOT\020\002\022\021"
+    "\n\rEND_MULTI_HOT\020\003", 337);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "GenSeed.proto", &protobuf_RegisterTypes);
   CaffeGenSeed::default_instance_ = new CaffeGenSeed();
@@ -139,6 +141,7 @@ const int CaffeGenSeed::kNetEndTypeFieldNumber;
 const int CaffeGenSeed::kNumOutputNodesFieldNumber;
 const int CaffeGenSeed::kProtoFileNameFieldNumber;
 const int CaffeGenSeed::kModelFileNameFieldNumber;
+const int CaffeGenSeed::kNumAccuracyCandidatesFieldNumber;
 #endif  // !_MSC_VER
 
 CaffeGenSeed::CaffeGenSeed()
@@ -164,6 +167,7 @@ void CaffeGenSeed::SharedCtor() {
   num_output_nodes_ = 0;
   proto_file_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   model_file_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  num_accuracy_candidates_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -234,6 +238,7 @@ void CaffeGenSeed::Clear() {
         model_file_name_->clear();
       }
     }
+    num_accuracy_candidates_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -361,6 +366,22 @@ bool CaffeGenSeed::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(64)) goto parse_num_accuracy_candidates;
+        break;
+      }
+
+      // optional int32 num_accuracy_candidates = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_num_accuracy_candidates:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &num_accuracy_candidates_)));
+          set_has_num_accuracy_candidates();
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -435,6 +456,11 @@ void CaffeGenSeed::SerializeWithCachedSizes(
       7, this->model_file_name(), output);
   }
 
+  // optional int32 num_accuracy_candidates = 8;
+  if (has_num_accuracy_candidates()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(8, this->num_accuracy_candidates(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -499,6 +525,11 @@ void CaffeGenSeed::SerializeWithCachedSizes(
         7, this->model_file_name(), target);
   }
 
+  // optional int32 num_accuracy_candidates = 8;
+  if (has_num_accuracy_candidates()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(8, this->num_accuracy_candidates(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -558,6 +589,13 @@ int CaffeGenSeed::ByteSize() const {
           this->model_file_name());
     }
 
+    // optional int32 num_accuracy_candidates = 8;
+    if (has_num_accuracy_candidates()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->num_accuracy_candidates());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -606,6 +644,9 @@ void CaffeGenSeed::MergeFrom(const CaffeGenSeed& from) {
     if (from.has_model_file_name()) {
       set_model_file_name(from.model_file_name());
     }
+    if (from.has_num_accuracy_candidates()) {
+      set_num_accuracy_candidates(from.num_accuracy_candidates());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -637,6 +678,7 @@ void CaffeGenSeed::Swap(CaffeGenSeed* other) {
     std::swap(num_output_nodes_, other->num_output_nodes_);
     std::swap(proto_file_name_, other->proto_file_name_);
     std::swap(model_file_name_, other->model_file_name_);
+    std::swap(num_accuracy_candidates_, other->num_accuracy_candidates_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

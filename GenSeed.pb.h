@@ -204,6 +204,13 @@ class CaffeGenSeed : public ::google::protobuf::Message {
   inline ::std::string* release_model_file_name();
   inline void set_allocated_model_file_name(::std::string* model_file_name);
 
+  // optional int32 num_accuracy_candidates = 8;
+  inline bool has_num_accuracy_candidates() const;
+  inline void clear_num_accuracy_candidates();
+  static const int kNumAccuracyCandidatesFieldNumber = 8;
+  inline ::google::protobuf::int32 num_accuracy_candidates() const;
+  inline void set_num_accuracy_candidates(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:CaffeGenSeed)
  private:
   inline void set_has_test_list_file_name();
@@ -220,6 +227,8 @@ class CaffeGenSeed : public ::google::protobuf::Message {
   inline void clear_has_proto_file_name();
   inline void set_has_model_file_name();
   inline void clear_has_model_file_name();
+  inline void set_has_num_accuracy_candidates();
+  inline void clear_has_num_accuracy_candidates();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -228,11 +237,12 @@ class CaffeGenSeed : public ::google::protobuf::Message {
   ::google::protobuf::int32 num_test_cases_;
   int net_end_type_;
   ::std::string* proto_file_name_;
-  ::std::string* model_file_name_;
   ::google::protobuf::int32 num_output_nodes_;
+  ::google::protobuf::int32 num_accuracy_candidates_;
+  ::std::string* model_file_name_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(7 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
 
   friend void  protobuf_AddDesc_GenSeed_2eproto();
   friend void protobuf_AssignDesc_GenSeed_2eproto();
@@ -593,6 +603,28 @@ inline void CaffeGenSeed::set_allocated_model_file_name(::std::string* model_fil
     clear_has_model_file_name();
     model_file_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
+}
+
+// optional int32 num_accuracy_candidates = 8;
+inline bool CaffeGenSeed::has_num_accuracy_candidates() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void CaffeGenSeed::set_has_num_accuracy_candidates() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void CaffeGenSeed::clear_has_num_accuracy_candidates() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void CaffeGenSeed::clear_num_accuracy_candidates() {
+  num_accuracy_candidates_ = 0;
+  clear_has_num_accuracy_candidates();
+}
+inline ::google::protobuf::int32 CaffeGenSeed::num_accuracy_candidates() const {
+  return num_accuracy_candidates_;
+}
+inline void CaffeGenSeed::set_num_accuracy_candidates(::google::protobuf::int32 value) {
+  set_has_num_accuracy_candidates();
+  num_accuracy_candidates_ = value;
 }
 
 

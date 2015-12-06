@@ -448,9 +448,9 @@ int main(int argc, char** argv) {
 		"/devlink/caffe/data/WordEmbed/VecPredict/models/v_iter_83869.caffemodel",
 		"data", "SquashOutput"));
 	nets.push_back(SingleNet(
-		"/home/abba/caffe-recurrent/toys/WordEmbed/GramValid/train.prototxt",
-		"/devlink/caffe/data/WordEmbed/GramValid/models/g_iter_500000.caffemodel",
-		"data", "SquashOutput"));
+		"/devlink/caffe/data/NetGen/GramPosValid/models/train.prototxt",
+		"/devlink/caffe/data/NetGen/GramPosValid/models/g_best.caffemodel",
+		"data", "squash3"));
 	classifier.Init(nets,
 					word_file_name, 
 					word_vector_file_name);

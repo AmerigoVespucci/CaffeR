@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/Compose.o \
+	${OBJECTDIR}/GenSeed.pb.o \
 	${OBJECTDIR}/MultiNet.o \
 	${OBJECTDIR}/NetGen.o \
 	${OBJECTDIR}/OneRun.o \
@@ -219,6 +220,11 @@ ${OBJECTDIR}/Compose.o: Compose.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -DCAFFE_NET_GEN_MAIN -DCPU_ONLY -I../../caffe-recurrent/build/src -I. -Iinclude -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Compose.o Compose.cpp
+
+${OBJECTDIR}/GenSeed.pb.o: GenSeed.pb.cc 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -DCAFFE_NET_GEN_MAIN -DCPU_ONLY -I../../caffe-recurrent/build/src -I. -Iinclude -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/GenSeed.pb.o GenSeed.pb.cc
 
 ${OBJECTDIR}/MultiNet.o: MultiNet.cpp 
 	${MKDIR} -p ${OBJECTDIR}
