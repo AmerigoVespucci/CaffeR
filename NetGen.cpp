@@ -473,7 +473,7 @@ string CreateHD5TestStr(string test_file)
 					+ "		phase: TEST\n"
 					+ cHD5Str2
 					+ "\"" + test_file + "\""
-					+ cHD5StrBatch1;
+					+ cHD5StrBatch128; // can be cHD5StrBatch1 but it's nice to see a real result in the log file
 					
 	return ret_str;
 }
@@ -483,7 +483,7 @@ string CreateReLUStr()
 	return string(	"layer {\n"
 					"  name: \"squash#id#\"\n"
 					"  type: \"ReLU\"\n"
-					"  bottom: \"ip#id#s\"\n"
+					"  bottom: \"ip#id#\"\n"
 					"  top: \"ip#id#s\"\n"
 					"}\n");
 
@@ -494,7 +494,7 @@ string CreateSigmoidStr()
 	return string(	"layer {\n"
 					"  name: \"squash#id#\"\n"
 					"  type: \"Sigmoid\"\n"
-					"  bottom: \"ip#id#s\"\n"
+					"  bottom: \"ip#id#\"\n"
 					"  top: \"ip#id#s\"\n"
 					"}\n");
 
@@ -549,6 +549,33 @@ string AddSoftmaxAndAccuracyStr (int prev_id, int& layers_so_far, int num_accura
 
 }
 
+string AddCrossEntropyAndEuclideanStr (int prev_id, int& layers_so_far)
+{
+	string modi = 
+		"layer {\n"
+		"  name: \"loss\"\n"
+		" type: \"SigmoidCrossEntropyLoss\"\n"
+		"  bottom: \"ip#0#\"\n"
+		"  bottom: \"label\"\n"
+		"  top: \"cross_entropy_loss\"\n"
+		"  loss_weight: 1\n"
+		"}\n"
+		"layer {\n"
+		"  name: \"readable-loss\"\n"
+		"  type: \"EuclideanLoss\"\n"
+		"  bottom: \"ip#0#s\"\n"
+		"  bottom: \"label\"\n"
+		"  top: \"el_error\"\n"
+		"  loss_weight: 0\n"
+		"}\n";
+	string sid = boost::lexical_cast<string>(prev_id);
+	modi = boost::replace_all_copy(modi, "#0#", sid);
+	
+	layers_so_far += 2;
+	return modi;
+
+}
+
 string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id, 
 							int num_output, int& layers_so_far, float dropout) 
 {
@@ -557,7 +584,7 @@ string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id,
 		"  name: \"ip#id#\"\n"
 		"  type: \"InnerProduct\"\n"
 		"  bottom: \"#prev_top#\"\n"
-		"  top: \"ip#id#s\"\n"
+		"  top: \"ip#id#\"\n"
 		"  param {\n"
 		"    lr_mult: 1\n"
 		"  }\n"
@@ -599,7 +626,7 @@ string AddInnerProductStr(	bool b_ReLU, bool b_Sigmoid, bool b_drop, int id,
 string CreateSolverParamStr( float lr)
 {
 	string modi =	
-					"test_iter: 10\n"
+					"test_iter: 100\n"
 					"test_interval: 10000\n" // pro forma
 					"base_lr: #lr#\n"
 					"lr_policy: \"step\"\n"
@@ -655,6 +682,11 @@ void NGNet::Gen(vector<int>& num_nodes_in_layer, int mod_idx_idx, float lr, Caff
 												num_layers_so_far, 
 												num_accuracy_candidates);
 			break;
+		case CaffeGenSeed::END_MULTI_HOT:
+			end_str = AddCrossEntropyAndEuclideanStr(	num_nodes_in_layer.size() + 1, 
+														num_layers_so_far);
+			break;
+			
 	}
 	net_def += end_str;
 	train_proto_str_ = net_def;
@@ -824,9 +856,9 @@ void NetGen::Init() {
 	int num_nodes_in_last_layer = config.num_output_nodes(); 
 	vector<int> ip_layer_idx_arr;
 	vector<int> num_nodes_in_layer;
-	num_nodes_in_layer.push_back(10);
-	num_nodes_in_layer.push_back(3);
-	const float c_start_lr = 0.01;
+	num_nodes_in_layer.push_back(10); //core start 10 or 5
+	num_nodes_in_layer.push_back(3); // core start 3
+	const float c_start_lr = 0.01; // reasonab;e start 0.01
 	const float c_lr_mod_factor = 1.2f;
 	float lr = c_start_lr;
 	LiveSnapshot snap;
@@ -901,6 +933,7 @@ void NetGen::Init() {
 			phases.push_back(make_pair(rand(), ActionOpts[i_phase]));
 		}
 		std::sort(phases.begin(), phases.end());
+		int DiscourageDoublingFactor = 6; // a number from 1 to 10, rand() must beat it to play the option
 		for (int ima = 0; ima < c_num_to_test; ima++) {
 			vector<int> num_nodes_in_layer_mod = num_nodes_in_layer;
 			shared_ptr<NGNet> ng_net_2;
@@ -915,6 +948,7 @@ void NetGen::Init() {
 //			}
 			switch(mod_action) {
 				case ModActionDoubleLayer:
+					if ((rand() % 10) <= DiscourageDoublingFactor) continue;
 					std::cerr << "trying double layer " << mod_action_param + 1 << "\n";
 					ng_net_2.reset(new NGNet());
 					num_nodes_in_layer_mod[mod_action_param] *= 2;
@@ -1122,7 +1156,7 @@ int main(int argc, char** argv) {
 	int input_data_idx = 0;
 	int input_label_idx = 1;
 
-	NetGen generator("/devlink/caffe/data/NetGen/WordToPos/data/config.prototxt");
+	NetGen generator("/devlink/caffe/data/NetGen/DObjValid/data/config.prototxt");
 	vector<shared_ptr<NGNet> > nets;
 	generator.Init();
 

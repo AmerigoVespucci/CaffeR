@@ -7,12 +7,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/abba/NetBeansProjects/CaffeR/MultiNet.cpp</file>
             <file>file:/home/abba/NetBeansProjects/CaffeR/NetGen.cpp</file>
-            <file>file:/home/abba/NetBeansProjects/CaffeR/tools/caffe.cpp</file>
-            <file>file:/home/abba/NetBeansProjects/CaffeR/caffe/net.cpp</file>
-            <file>file:/home/abba/NetBeansProjects/CaffeR/caffe/solver.cpp</file>
-            <file>file:/home/abba/NetBeansProjects/CaffeR/caffe/layers/accuracy_layer.cpp</file>
+            <file>file:/home/abba/NetBeansProjects/CaffeR/caffe/layers/hdf5_data_layer.cpp</file>
         </group>
     </open-files>
 </project-private>
